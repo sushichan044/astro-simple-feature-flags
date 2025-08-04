@@ -1,0 +1,26 @@
+packages:
+  - packages/*
+  - docs
+
+catalogs:
+  biome:
+    '@biomejs/biome': 2.1.2
+  build:
+    '@arethetypeswrong/cli': 0.18.2
+    publint: 0.3.12
+    tsdown: 0.13.0
+    unplugin-unused: 0.5.1
+  eslint:
+    '@virtual-live-lab/eslint-config': 2.2.24
+    eslint: 9.31.0
+    typescript-eslint: 8.38.0
+  test:
+    fs-fixture: 2.8.1
+    vitest: 3.2.4
+  typescript:
+    '@virtual-live-lab/tsconfig': 2.1.21
+    typescript: 5.8.3
+
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
