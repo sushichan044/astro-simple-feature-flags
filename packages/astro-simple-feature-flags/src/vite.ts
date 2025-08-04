@@ -6,7 +6,6 @@
 export const getViteMode = (): ViteModeType =>
   import.meta.env.MODE as ViteModeType;
 
-
 /**
  * Vite Mode type. accepts default mode or user-defined mode.
  */

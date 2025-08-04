@@ -6,16 +6,16 @@
 [![TypeScript](https://img.shields.io/badge/typescript-ready-blue.svg)](https://www.typescriptlang.org/)
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-> A simple, type-safe feature flags integration for Astro powered by the Content Layer API.
+> A simple, type-safe feature flag integration for Astro, powered by the Content Layer API.
 
 ## ✨ Features
 
-- 🌍 **Environment-aware** - Different flag values per Vite mode
-- 🔒 **Type-safe** - Full TypeScript support with auto-generated types
-- 🔄 **Hot reload** - Flag changes trigger automatic rebuilds during development
-- 📦 **Content Layer powered** - Built on Astro 5's new Content Layer API
-  - Works in both SSG and SSR modes
-- 🎯 **Simple API** - Single function call to query any flag
+- 🌍 **Environment-aware** - Use different flag values for each Vite mode.
+- 🔒 **Type-safe** - Full TypeScript support with auto-generated types.
+- 🔄 **Hot-reload** - Flag changes trigger HMR in the dev server.
+- 📦 **Content Layer Powered** - Built on Astro 5's Content Layer API.
+  - Works in both SSG and SSR modes.
+- 🎯 **Simple API** - Query any flag with a single function call.
 
 ## 🚀 Getting Started
 
@@ -39,7 +39,7 @@ export default defineConfig({
 });
 ```
 
-### 3. Create Feature Flags Config
+### 3. Create a Feature Flag Configuration
 
 ```ts
 // flags.config.ts
@@ -48,8 +48,8 @@ import { z } from 'astro/zod';
 
 export default defineConfig({
   schema: z.object({
-    isFooEnabled: z.boolean().default(false),
-    barEnabledRate: z.number().min(0).max(1).default(0),
+    isFooEnabled: z.boolean().optional().default(false),
+    barEnabledRate: z.number().min(0).max(1).optional().default(0),
   }),
   flag: {
     development: {
@@ -60,22 +60,22 @@ export default defineConfig({
       barEnabledRate: 0.1,
     },
   },
-  // This integration works in these vite modes.
-  // You can add more modes as needed.
-  // For example, 'staging', 'testing', etc.
-  // see https://vite.dev/guide/env-and-mode.html#modes for detailed information about Vite mode.
+  // Define the Vite modes for your environments.
+  // You can add more modes as needed (e.g., 'staging', 'testing').
+  //
+  // See [https://vite.dev/guide/env-and-mode.html#modes](https://vite.dev/guide/env-and-mode.html#modes) for detailed information about Vite modes.
   viteMode: ['development', 'production'],
 });
 ```
 
-### 4. Use in Your Astro Components
+### 4. Use Flags in Your Astro Components
 
 ```astro
 ---
 // src/pages/index.astro
 import { queryFeatureFlag } from 'virtual:astro-simple-feature-flags';
 
-// Query feature flags! Params and return types are fully typed!
+// Query feature flags! Params and return types are fully typed.
 const isFooEnabled = await queryFeatureFlag('isFooEnabled');
 const barEnabledRate = await queryFeatureFlag('barEnabledRate');
 ---
@@ -113,18 +113,18 @@ See `engines.node` and `peerDependencies` in [package.json](./package.json) for 
 
 2. **Create your flags configuration file:**
 
-    - The config file is `flags.config.{ts,js,mjs,cjs,cts,mts}` by default
-    - If you want to place config in `.config/flags.config.ts`, you can pass `configFileName: '.config/flags'` to the integration options.
+    - By default, the configuration file is named `flags.config.{ts,js,mjs,cjs,cts,mts}`.
+    - To use a different path, for example `.config/flags.config.ts`, pass `.config/flags` to the configFileName option in your integration settings.
 
 ## 🌐 Environment Management
 
 `astro-simple-feature-flags` supports environment-aware feature flags using Vite modes.
 
-See [Vite Modes Docs](https://vite.dev/guide/env-and-mode.html#modes) for more details on how Vite modes work.
+See [Vite Modes Docs](https://vite.dev/guide/env-and-mode.html#modes) for more details.
 
 ### Environment Configuration
 
-The `viteMode` array in your config maps Vite's build modes to your environment configurations:
+The `viteMode` array in your configuration maps Vite's build modes to your defined environments:
 
 ```ts
 export default defineConfig({
@@ -139,9 +139,9 @@ export default defineConfig({
   // Map Vite modes to environments
   viteMode: ['development', 'staging', 'production', 'testing'],
 
-  // When Vite runs in 'development' mode -> uses 'development' flags
-  // When Vite runs in 'staging' mode -> uses 'staging' flags
-  // etc.
+  // When Vite runs in 'development' mode, it uses the 'development' flags.
+  // When Vite runs in 'staging' mode, it uses the 'staging' flags.
+  // And so on.
 });
 ```
 
@@ -183,9 +183,9 @@ We welcome contributions! Here's how to get started:
 1. **Fork the repository**
 2. **Clone your fork**: `git clone https://github.com/yourusername/astro-simple-feature-flags.git`
 3. **Install dependencies**: `pnpm install`
-4. **Run tests**: `pnpm test`
-5. **Make your changes**
-6. **Test thoroughly**: `pnpm test && pnpm typecheck && pnpm lint`
+4. **Make your changes**
+5. **Format your code**: `pnpm format`
+6. **Test thoroughly**: `pnpm typecheck && pnpm lint`
 7. **Submit a pull request**
 
 ### Development Setup
@@ -197,9 +197,6 @@ cd astro-simple-feature-flags
 
 # Install dependencies
 pnpm install
-
-# Run tests
-pnpm test
 
 # Build the package
 pnpm --filter astro-simple-feature-flags build
