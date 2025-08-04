@@ -13,13 +13,10 @@ export default defineConfig({
       fooReleased: true,
     },
 
-    production: {
-      barReleaseRate: 0,
-      fooReleased: false,
-    },
+    production: {},
   },
   schema: z.object({
-    barReleaseRate: z.number().min(0).max(1),
+    barReleaseRate: z.number().min(0).max(1).optional().default(0),
     fooReleased: z.boolean().optional().default(false),
   }),
   viteMode: ["development", "production", "staging"],
