@@ -7,6 +7,7 @@ export default defineConfig(ts, {
     toplevel: topLevel,
   },
   rules: {
+    // TODO: maybe writing new plugin is good to analyze intelligently using `sideEffects` field in package.json
     "toplevel/no-toplevel-side-effect": "error",
   },
 });
