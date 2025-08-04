@@ -1,3 +1,6 @@
+/* eslint-disable */
+// @ts-nocheck
+
 declare module "@@__VIRTUAL_MODULE_ID__@@" {
   type GetExport<
     TMod extends Record<string, unknown>,

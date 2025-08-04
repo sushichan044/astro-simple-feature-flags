@@ -4,9 +4,9 @@
 declare module "@@__VIRTUAL_MODULE_ID__@@" {
   type Module = typeof import("@@__RESOLVED_CONFIG_PATH__@@");
 
-  type ResolvedConfig = GetExport<Module, "default">;
+  type ResolvedFlags = GetExport<Module, "default">;
 
-  type FlagSchema = ResolvedConfig["schema"];
+  type FlagSchema = ResolvedFlags["schema"];
   type FlagShape = import("astro/zod").infer<FlagSchema>;
   type FlagKey = keyof FlagShape;
 
