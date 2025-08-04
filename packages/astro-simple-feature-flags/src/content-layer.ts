@@ -14,6 +14,7 @@ import { styleText } from "node:util";
 
 import type { FlagResolutionResult } from "./config/resolve";
 import type { FeatureFlagCollectionName } from "./constant";
+import type { FeatureFlagIntegration } from "./types";
 
 import { bugs as pkgBugs } from "../package.json" with { type: "json" };
 import { resolveFlagConfig } from "./config/resolve";
@@ -27,16 +28,17 @@ export const defineFeatureFlagCollection = (
   defineCollection: DefineCollectionFn,
 ): Record<FeatureFlagCollectionName, CollectionConfig<BaseSchema>> => {
   return {
-    // Not using `FEATURE_FLAG_COLLECTION_NAME` to avoid dynamic key construction
-    // type checking in return type annotation instead.
     "astro-simple-feature-flags": defineCollection({
       loader: {
         load: async (c) => {
-          const configFileName = c.config.integrations.find(
+          // HACK: use private hook key to retrieve the config from integration.
+          const integration = c.config.integrations.find(
             (i) => i.name === INTEGRATION_NAME,
-          )?.hooks["astro-feature-flag:config"]?.configFileName as
-            | string
-            | undefined;
+          ) as FeatureFlagIntegration | undefined;
+
+          const configFileName =
+            integration?.hooks["astro-simple-feature-flags:private:storage"]
+              .configFileName;
 
           if (!isNonEmptyString(configFileName)) {
             throw new AstroError(

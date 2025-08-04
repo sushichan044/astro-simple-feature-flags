@@ -1,8 +1,8 @@
-import type { AstroIntegration } from "astro";
-
 import { AstroError } from "astro/errors";
 import { dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import type { FeatureFlagIntegration } from "./types";
 
 import {
   type FeatureFlagResolveOptions,
@@ -21,12 +21,13 @@ import { astroFeatureFlagVirtualModPlugin } from "./virtual-module/vite-plugin-f
 
 export const simpleFeatureFlags = (
   options: Partial<FeatureFlagResolveOptions> = {},
-): AstroIntegration => {
+): FeatureFlagIntegration => {
   const { configFileName = "flags" } = options;
 
   return {
     hooks: {
-      "astro-feature-flag:config": {
+      // HACK: use private hook key to pass the config file name to the content loader.
+      "astro-simple-feature-flags:private:storage": {
         configFileName,
       },
 
