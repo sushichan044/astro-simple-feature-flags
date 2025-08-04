@@ -7,11 +7,11 @@ declare module "@@__VIRTUAL_MODULE_ID__@@" {
   type ResolvedConfig = import("./internal.js").GetExport<Module, "default">;
 
   type FlagSchema = ResolvedConfig["schema"];
-  type FlagType = import("astro/zod").infer<FlagSchema>;
-  type FlagKey = keyof FlagType;
+  type FlagShape = import("astro/zod").infer<FlagSchema>;
+  type FlagKey = keyof FlagShape;
 
   type QueryFlag<TKey extends FlagKey> = TKey extends FlagKey
-    ? FlagType[TKey]
+    ? FlagShape[TKey]
     : never;
 
   export function queryFeatureFlag<TKey extends FlagKey>(
