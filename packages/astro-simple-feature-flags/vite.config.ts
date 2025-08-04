@@ -1,4 +1,5 @@
-/// <reference types="vitest" />
+/// <reference types="vitest/config" />
+
 import Macros from "unplugin-macros/vite";
 import { defineConfig } from "vite";
 
