@@ -4,17 +4,17 @@ import { z } from "astro/zod";
 export default defineConfig({
   flag: {
     development: {
+      barReleaseRate: 0.3,
       fooReleased: false,
-      simpleFlag: "true",
     },
     production: {
+      barReleaseRate: 0,
       fooReleased: false,
-      simpleFlag: "false",
     },
   },
   schema: z.object({
+    barReleaseRate: z.number().positive().min(0).max(1),
     fooReleased: z.boolean().default(false),
-    simpleFlag: z.string(),
   }),
   viteMode: ["development", "production"],
 });
