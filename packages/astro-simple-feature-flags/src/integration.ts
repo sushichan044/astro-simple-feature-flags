@@ -1,7 +1,6 @@
 import type { AstroIntegration } from "astro";
 
-import { existsSync } from "node:fs";
-import { mkdir } from "node:fs/promises";
+import { AstroError } from "astro/errors";
 import { dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -39,34 +38,34 @@ export const simpleFeatureFlags = (
         });
       },
 
-      "astro:config:done": async ({ config, injectTypes, logger }) => {
+      "astro:config:done": ({ config, injectTypes }) => {
+        // generate dts of `virtual:astro-simple-feature-flags` by calling `injectTypes` twice to
+        // dynamically construct the dts content with generated dts file URL.
+
+        // 1: Inject `GetExport` type only to get the directory dts files placed.
         const internalDtsURL = injectTypes({
           content: compileVirtualModuleInternalDts(
             _macroVirtualModuleInternalDts.code,
           ),
           filename: _macroVirtualModuleInternalDts.filename,
         });
-
         const dtsRootDir = dirname(fileURLToPath(internalDtsURL));
-        if (!existsSync(dtsRootDir)) {
-          await mkdir(dtsRootDir, { recursive: true });
-        }
 
         const configRes = resolveFlagConfig(config.root, {
           configFileName,
         });
-
         if (!configRes.success) {
-          logger.error(configRes.error.message);
-          return;
+          throw new AstroError(configRes.error.message);
         }
 
+        // 2: Calculate the path to the config module from the dts root directory.
         const configModulePathFromDts = relative(
           dtsRootDir,
           fileURLToPath(configRes.configModuleId),
         );
 
         injectTypes({
+          // 3: Inject rest virtual module dts, which depends on internal dts URL.
           content: compileVirtualModuleDts(_macroVirtualModuleDts.code, {
             resolvedConfigPath: configModulePathFromDts,
           }),
