@@ -42,10 +42,7 @@ export const defineFeatureFlagCollection = (
 
           if (!isNonEmptyString(configFileName)) {
             throw new AstroError(
-              styleText(
-                "red",
-                `❌ Feature flag config file name not found. Please ensure the integration is configured correctly.`,
-              ),
+              "❌ Feature flag config file name not found. Please ensure the integration is configured correctly.",
               `This might be a bug in the integration. Please report it at ${pkgBugs.url}`,
             );
           }
@@ -60,26 +57,31 @@ export const defineFeatureFlagCollection = (
 
           const currentViteMode = getViteMode();
 
-          await safeLoadFeatureFlag(
-            {
-              currentViteMode,
-              flagResolution,
-              loaderContext: c,
-            },
-            "start",
-          );
+          await doLoadFeatureFlag({
+            currentViteMode,
+            flagResolution,
+            loaderContext: c,
+          }).then(() => {
+            c.logger.info(
+              `✅ Feature flag config loaded successfully for current Vite Mode: ${styleText("yellow", currentViteMode)}`,
+            );
+          });
 
           c.watcher?.on("change", (changedPath) => {
             if (changedPath === fileURLToPath(flagResolution.configModuleId)) {
-              // this promise handles error correctly.
-              void safeLoadFeatureFlag(
-                {
-                  currentViteMode,
-                  flagResolution,
-                  loaderContext: c,
-                },
-                "reload",
-              );
+              doLoadFeatureFlag({
+                currentViteMode,
+                flagResolution,
+                loaderContext: c,
+              })
+                .then(() => {
+                  c.logger.info(
+                    `🔄 Feature flag config reloaded successfully for current Vite Mode: ${styleText("yellow", currentViteMode)}`,
+                  );
+                })
+                .catch((e) => {
+                  throw e;
+                });
             }
           });
         },
@@ -93,37 +95,6 @@ type LoadFeatureFlagOptions = {
   currentViteMode: string;
   flagResolution: Extract<FlagResolutionResult, { success: true }>;
   loaderContext: LoaderContext;
-};
-
-const safeLoadFeatureFlag = async (
-  options: LoadFeatureFlagOptions,
-  state: "reload" | "start",
-): Promise<void> => {
-  return doLoadFeatureFlag(options)
-    .then(() => {
-      if (state === "start") {
-        options.loaderContext.logger.info(
-          `✅ Feature flag loaded successfully for ${options.currentViteMode}.`,
-        );
-      } else {
-        options.loaderContext.logger.info(
-          `🔄 Feature flag reloaded for ${options.currentViteMode}.`,
-        );
-      }
-    })
-    .catch((e) => {
-      if (e instanceof AstroError) {
-        throw e;
-      } else if (e instanceof Error) {
-        options.loaderContext.logger.error(
-          `Failed to load feature flag config: ${e.message}`,
-        );
-      } else {
-        options.loaderContext.logger.error(
-          `Failed to load feature flag config: ${String(e)}`,
-        );
-      }
-    });
 };
 
 const doLoadFeatureFlag = async (options: LoadFeatureFlagOptions) => {
@@ -141,20 +112,16 @@ const doLoadFeatureFlag = async (options: LoadFeatureFlagOptions) => {
   const configModule = await flagResolution.importConfigModule();
   if (!configModule) {
     throw new AstroError(
-      styleText(
-        "red",
-        `❌ Failed to load feature flag config file ${configRelPathFromCwd}.`,
-      ),
+      `❌ Failed to load feature flag config file ${configRelPathFromCwd}.`,
+
       `Check if the config file exists at ${configRelPathFromCwd}.`,
     );
   }
 
   if (!isZodObjectSchema(configModule.schema)) {
     throw new AstroError(
-      styleText(
-        "red",
-        `❌ Invalid feature flag config schema in ${configRelPathFromCwd}.`,
-      ),
+      `❌ Invalid feature flag config schema in ${configRelPathFromCwd}.`,
+
       `Check if the config schema is defined using \`z.object()\` in ${configRelPathFromCwd}.`,
     );
   }
@@ -164,10 +131,8 @@ const doLoadFeatureFlag = async (options: LoadFeatureFlagOptions) => {
 
   if (!isFeatureActiveForCurrentViteMode) {
     throw new AstroError(
-      styleText(
-        "red",
-        `❌ Feature flag not configured for current Vite Mode: ${styleText("yellow", currentViteMode)}`,
-      ),
+      `❌ Feature flag not configured for current Vite Mode: ${styleText("yellow", currentViteMode)}`,
+
       `Check if ${currentViteMode} is included in viteMode in defineConfig() at ${configRelPathFromCwd}.`,
     );
   }
@@ -176,24 +141,21 @@ const doLoadFeatureFlag = async (options: LoadFeatureFlagOptions) => {
     `🚚 Feature flag will be loaded for current Vite Mode: ${styleText("yellow", currentViteMode)}`,
   );
 
-  await Promise.allSettled(
+  return await Promise.all(
     configModule.viteMode.map(async (mode) => {
       const flag = configModule.flag[mode];
       if (flag == null) {
         throw new AstroError(
-          styleText("yellow", `❌ Feature flag "${mode}" not found.`),
-          `Define flag config for "${mode}" in defineConfig() at ${configRelPathFromCwd}. Maybe you see TypeScript error because of missing flag config.`,
+          `❌ Feature flag for mode: ${mode} not found.`,
+          `Define flag config for \`${mode}\` in defineConfig() at ${configRelPathFromCwd}. Maybe you see TypeScript error because of missing flag config.`,
         );
       }
 
       const parseRes = await configModule.schema.safeParseAsync(flag);
       if (!parseRes.success) {
         throw new AstroError(
-          styleText(
-            "red",
-            `❌ Invalid feature flag config for "${mode}" in ${configRelPathFromCwd}.`,
-          ),
-          `Check if the flag config is defined correctly in defineConfig() at ${configRelPathFromCwd}. Maybe you see TypeScript error because of invalid flag config.`,
+          `❌ Invalid feature flag config for \`${mode}\` in ${configRelPathFromCwd}.`,
+          `Check if the flag config is defined correctly in defineConfig() at ${configRelPathFromCwd}.\n\nZod issues: ${JSON.stringify(parseRes.error.issues, null, 2)}`,
         );
       }
 
