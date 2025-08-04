@@ -1,9 +1,3 @@
-/**
- * @module astro-simple-feature-flags/internal
- *
- * This module provides internal utilities for the `virtual:astro-simple-feature-flags` module.
- */
-
 import type { ViteModeType } from "../vite";
 
 /**

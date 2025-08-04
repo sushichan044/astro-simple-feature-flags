@@ -1,5 +1,4 @@
 /**
- * @module astro-simple-feature-flags/virtual-module
  *
  * import this module with type: `macro` to inject the virtual module implementation.
  *
