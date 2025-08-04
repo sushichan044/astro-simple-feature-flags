@@ -11,19 +11,17 @@ type QueryFeatureFlagDependencies = {
 
 export const createQueryFeatureFlag =
   ({ collectionName, getEntry }: QueryFeatureFlagDependencies) =>
-  async (key: string): Promise<boolean> => {
+  async (key: string): Promise<unknown> => {
     const currentMode = getViteMode();
 
     const flagObject = await getEntry(collectionName, currentMode);
 
     if (flagObject == null) {
       console.warn(
-        `Feature flag data for vite mode: ${currentMode} is not found. Falling back to false.`,
+        `Feature flag data for vite mode: ${currentMode} is not found.`,
       );
-      return false;
+      return;
     }
 
-    const entry = flagObject.data?.[key] as boolean | undefined;
-
-    return entry ?? false;
+    return flagObject.data?.[key];
   };
