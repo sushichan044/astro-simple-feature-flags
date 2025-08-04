@@ -5,11 +5,17 @@ import { relative } from "node:path";
 import { cwd } from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { createDtsImport } from "./codegen/dts";
+import { INTEGRATION_NAME } from "./constant";
 import { esmResolve } from "./utils/import";
 import { isNonEmptyString } from "./utils/string";
+import { compileVirtualModuleDts } from "./virtual-module";
+import {
+  _macroVirtualModuleDts,
+  _macroVirtualModuleInternalDts,
+} from "./virtual-module/macro" with { type: "macro" };
+import { astroFeatureFlagVirtualModPlugin } from "./virtual-module/vite-plugin-flags-virtual-mod";
 
-type FeatureFlagOptions = {
+type FeatureFlagIntegrationOptions = {
   /**
    * config file name to be used for feature flags.
    *
@@ -20,45 +26,44 @@ type FeatureFlagOptions = {
   configFileName: string;
 };
 
-export const createIntegration = (
-  options: Partial<FeatureFlagOptions> = {},
+export const simpleFeatureFlags = (
+  options: Partial<FeatureFlagIntegrationOptions> = {},
 ): AstroIntegration => {
   const { configFileName = "flags" } = options;
-  let astroRootDir = pathToFileURL(cwd());
 
+  let astroRootDirURL = pathToFileURL(cwd());
   // get codegen root dir in `astro:config:setup` hook,
   // then use it in `astro:config:done` hook
   // to calculate relative path to the config file without calling `injectTypes()` twice
   let codeGenRootDir = new URL(
-    "./.astro/integrations/astro-feature-flags",
-    astroRootDir,
+    `./.astro/integrations/${INTEGRATION_NAME}`,
+    astroRootDirURL,
   );
 
   return {
     hooks: {
-      "astro:config:setup": async ({ createCodegenDir }) => {
+      "astro:config:setup": async ({ createCodegenDir, updateConfig }) => {
         codeGenRootDir = createCodegenDir();
 
-        const internalDtsURL = new URL("internal.d.ts", codeGenRootDir);
-
         await writeFile(
-          internalDtsURL,
-          [
-            `export type GetExport<
-  TMod extends Record<string, unknown>,
-  TKey extends string,
-> = TMod extends { [K in TKey]: infer E } ? E : never;`,
-          ].join("\n\n"),
+          new URL(_macroVirtualModuleInternalDts.filename, codeGenRootDir),
+          _macroVirtualModuleInternalDts.code,
           "utf8",
         );
+
+        updateConfig({
+          vite: {
+            plugins: [astroFeatureFlagVirtualModPlugin()],
+          },
+        });
       },
 
       "astro:config:done": ({ config, injectTypes, logger }) => {
-        astroRootDir = config.root;
+        astroRootDirURL = config.root;
         const configModuleId = `${configFileName}.config`;
 
         const configModIdOrURL = resolveModulePath(
-          astroRootDir,
+          astroRootDirURL,
           configModuleId,
         );
         if (!isNonEmptyString(configModIdOrURL)) {
@@ -74,18 +79,14 @@ export const createIntegration = (
         );
 
         injectTypes({
-          content: [
-            `type Module = typeof ${createDtsImport(configModulePathFromDts)};`,
-            "",
-            String.raw`type DefaultExport = import("./internal.js").GetExport<Module, "default">;`,
-            String.raw`type FlagSchema = DefaultExport["schema"];`,
-            `type SchemaType = import("astro/zod").infer<FlagSchema>;`,
-          ].join("\n"),
-          filename: "flags.d.ts",
+          content: compileVirtualModuleDts(_macroVirtualModuleDts.code, {
+            resolvedConfigPath: configModulePathFromDts,
+          }),
+          filename: _macroVirtualModuleDts.filename,
         });
       },
     },
-    name: "astro-feature-flags",
+    name: INTEGRATION_NAME,
   };
 };
 

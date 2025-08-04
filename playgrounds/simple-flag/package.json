@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "astro": "^5.12.8",
-    "astro-feature-flags": "workspace:*",
-    "zod": "^3.25.76"
+    "astro-simple-feature-flags": "workspace:*"
   }
 }

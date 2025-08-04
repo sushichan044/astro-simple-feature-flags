@@ -1,19 +1,19 @@
 ---
+import { queryFeatureFlag } from "virtual:astro-simple-feature-flags";
+
 import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
 
-import { getFeatureFlag } from "virtual:astro-feature-flags";
-
-import { z } from "astro/zod";
-
-type A = z.infer
-
-const isSimpleFlagEnabled = getFeatureFlag("simpleFlag");
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const isFooReleased = await queryFeatureFlag("fooReleased");
 ---
 
 <Layout>
 	<Welcome />
+	{
+		isFooReleased ? (
+			<p class="text-green-500">The fooReleased flag is enabled!</p>
+		) : (
+			<p class="text-red-500">The fooReleased flag is disabled.</p>
+		)
+	}
 </Layout>

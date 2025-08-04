@@ -1,17 +1,20 @@
-import { defineConfig } from "astro-feature-flags/config";
+import { defineConfig } from "astro-simple-feature-flags/config";
 import { z } from "astro/zod";
 
 export default defineConfig({
   flag: {
     development: {
-      simpleFlag: true,
+      fooReleased: false,
+      simpleFlag: "true",
     },
     production: {
-      simpleFlag: false,
+      fooReleased: false,
+      simpleFlag: "false",
     },
   },
   schema: z.object({
-    simpleFlag: z.boolean().default(false),
+    fooReleased: z.boolean().default(false),
+    simpleFlag: z.string(),
   }),
   viteMode: ["development", "production"],
 });

@@ -7,7 +7,7 @@ catalogs:
   biome:
     '@biomejs/biome': 2.1.2
   build:
-    '@arethetypeswrong/cli': 0.18.2
+    '@arethetypeswrong/core': 0.18.2
     publint: 0.3.12
     tsdown: 0.13.0
     unplugin-unused: 0.5.1
