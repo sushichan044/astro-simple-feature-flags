@@ -5,16 +5,20 @@ export default defineConfig({
   flag: {
     development: {
       barReleaseRate: 0.3,
-      fooReleased: false,
+      fooReleased: true,
     },
     production: {
       barReleaseRate: 0,
+      fooReleased: true,
+    },
+    staging: {
+      barReleaseRate: 1,
       fooReleased: false,
     },
   },
   schema: z.object({
-    barReleaseRate: z.number().positive().min(0).max(1),
-    fooReleased: z.boolean().default(false),
+    barReleaseRate: z.number().min(0).max(1),
+    fooReleased: z.boolean(),
   }),
-  viteMode: ["development", "production"],
+  viteMode: ["development", "production", "staging"],
 });

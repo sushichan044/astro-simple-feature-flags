@@ -4,6 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "dev:staging": "astro dev --mode staging",
+    "dev:production": "astro dev --mode production",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
