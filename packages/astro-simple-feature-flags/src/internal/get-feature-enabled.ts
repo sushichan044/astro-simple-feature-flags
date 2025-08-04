@@ -1,6 +1,6 @@
 import type { createGetEntry } from "astro/content/runtime";
 
-import { getViteMode } from "./utils";
+import { getViteMode } from "../vite";
 
 type GetEntryFn = ReturnType<typeof createGetEntry>;
 

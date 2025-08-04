@@ -1,6 +1,8 @@
 import { createJiti } from "jiti";
 
-const jiti = createJiti(import.meta.url);
+const jiti = createJiti(import.meta.url, {
+  moduleCache: false,
+});
 
 export async function importDefault<T>(id: string): Promise<T | undefined>;
 

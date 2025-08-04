@@ -7,7 +7,7 @@ export default defineConfig({
   },
   entry: [
     "src/index.ts",
-    "src/config.ts",
+    "src/config/index.ts",
     "src/content-layer.ts",
     "src/internal/index.ts",
   ],

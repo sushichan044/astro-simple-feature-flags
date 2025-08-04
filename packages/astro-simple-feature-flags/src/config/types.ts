@@ -1,12 +1,8 @@
-/**
- * @module featureFlag/config
- */
-
 import type { AnyZodObject, TypeOf } from "zod";
 
-import type { ViteModeType } from "./vite";
+import type { ViteModeType } from "../vite";
 
-export type UserConfig<
+export type FeatureFlagConfig<
   TFlagSchema extends FlagSchemaLike = FlagSchemaLike,
   TViteMode extends ViteModeType = ViteModeType,
 > = {
@@ -26,14 +22,10 @@ export type UserConfig<
   viteMode: TViteMode[];
 };
 
-export function defineConfig<
-  TFlagSchema extends FlagSchemaLike,
-  TViteMode extends ViteModeType,
->(
-  config: UserConfig<TFlagSchema, TViteMode>,
-): UserConfig<TFlagSchema, TViteMode> {
-  return config;
-}
+/**
+ * Acceptable schema type for feature flag
+ */
+export type FlagSchemaLike = AnyZodObject;
 
 /**
  * Infer flag spec type from schema.
@@ -41,8 +33,3 @@ export function defineConfig<
 type InferFlagValue<T extends FlagSchemaLike> = T extends AnyZodObject
   ? TypeOf<T>
   : never;
-
-/**
- * Acceptable schema type for feature flag
- */
-type FlagSchemaLike = AnyZodObject;

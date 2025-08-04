@@ -1,4 +1,13 @@
 /**
+ * Get current Vite Mode.
+ *
+ * @see {@link https://vite.dev/guide/env-and-mode#modes}
+ */
+export const getViteMode = (): ViteModeType =>
+  import.meta.env.MODE as ViteModeType;
+
+
+/**
  * Vite Mode type. accepts default mode or user-defined mode.
  */
 export type ViteModeType = (string & {}) | DefaultViteModeType;

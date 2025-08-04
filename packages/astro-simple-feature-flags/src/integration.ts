@@ -5,9 +5,11 @@ import { relative } from "node:path";
 import { cwd } from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import {
+  type FeatureFlagResolveOptions,
+  resolveFlagConfig,
+} from "./config/resolve";
 import { INTEGRATION_NAME } from "./constant";
-import { esmResolve } from "./utils/import";
-import { isNonEmptyString } from "./utils/string";
 import { compileVirtualModuleDts } from "./virtual-module";
 import {
   _macroVirtualModuleDts,
@@ -15,19 +17,8 @@ import {
 } from "./virtual-module/macro" with { type: "macro" };
 import { astroFeatureFlagVirtualModPlugin } from "./virtual-module/vite-plugin-flags-virtual-mod";
 
-type FeatureFlagIntegrationOptions = {
-  /**
-   * config file name to be used for feature flags.
-   *
-   * For example, if you set `configFileName` to `flags`, the config file will be `flags.config.{js,cjs,mjs,ts,cts,mts}`.
-   *
-   * @default `flags`
-   */
-  configFileName: string;
-};
-
 export const simpleFeatureFlags = (
-  options: Partial<FeatureFlagIntegrationOptions> = {},
+  options: Partial<FeatureFlagResolveOptions> = {},
 ): AstroIntegration => {
   const { configFileName = "flags" } = options;
 
@@ -42,6 +33,10 @@ export const simpleFeatureFlags = (
 
   return {
     hooks: {
+      "astro-feature-flag:config": {
+        configFileName,
+      },
+
       "astro:config:setup": async ({ createCodegenDir, updateConfig }) => {
         codeGenRootDir = createCodegenDir();
 
@@ -60,22 +55,19 @@ export const simpleFeatureFlags = (
 
       "astro:config:done": ({ config, injectTypes, logger }) => {
         astroRootDirURL = config.root;
-        const configModuleId = `${configFileName}.config`;
 
-        const configModIdOrURL = resolveModulePath(
-          astroRootDirURL,
-          configModuleId,
-        );
-        if (!isNonEmptyString(configModIdOrURL)) {
-          logger.error(
-            `Could not resolve config file for ${configModuleId}. Check if the file exists in the root directory.`,
-          );
+        const configRes = resolveFlagConfig(astroRootDirURL, {
+          configFileName,
+        });
+
+        if (!configRes.success) {
+          logger.error(configRes.error.message);
           return;
         }
 
         const configModulePathFromDts = relative(
           fileURLToPath(codeGenRootDir),
-          fileURLToPath(configModIdOrURL),
+          fileURLToPath(configRes.configModuleId),
         );
 
         injectTypes({
@@ -88,14 +80,4 @@ export const simpleFeatureFlags = (
     },
     name: INTEGRATION_NAME,
   };
-};
-
-const resolveModulePath = (
-  rootDir: URL,
-  configFileName: string,
-): string | undefined => {
-  // do not specify extension, delegate resolution to esmResolve()
-  const configFileURL = new URL(configFileName, rootDir);
-
-  return esmResolve(configFileURL.href);
 };
