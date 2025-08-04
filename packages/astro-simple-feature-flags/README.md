@@ -41,6 +41,8 @@ export default defineConfig({
 
 ### 3. Create a Feature Flag Configuration
 
+Write your flags definition.
+
 ```ts
 // flags.config.ts
 import { defineConfig } from 'astro-simple-feature-flags/config';
@@ -68,7 +70,29 @@ export default defineConfig({
 });
 ```
 
-### 4. Use Flags in Your Astro Components
+Then run:
+
+```bash
+npx astro sync
+```
+
+### 4. Define Content Collection via API
+
+> [!WARNING]
+> If you already defined a collection named `astro-simple-feature-flags`, this integration will not work.
+
+```ts
+// src/content/config.ts
+import { defineFeatureFlagCollection } from "astro-simple-feature-flags/content-layer";
+import { defineCollection } from "astro:content";
+
+export const collections = {
+  // Your existing collections...
+  ...defineFeatureFlagCollection(defineCollection),
+};
+```
+
+### 5. Use Flags in Your Astro Components
 
 ```astro
 ---
