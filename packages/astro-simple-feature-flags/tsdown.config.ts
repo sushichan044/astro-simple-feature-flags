@@ -12,6 +12,7 @@ export default defineConfig({
     "src/internal/index.ts",
   ],
   format: "esm",
+  minify: "dce-only",
   nodeProtocol: true,
   treeshake: true,
 
