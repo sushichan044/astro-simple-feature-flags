@@ -1,0 +1,29 @@
+{
+  "name": "@repo/astro-feature-flags-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "scripts": {
+    "lint": "pnpm -r run lint",
+    "test": "vitest --run",
+    "format": "biome format --write .",
+    "typecheck": "pnpm -r run typecheck"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.13.1",
+  "type": "module",
+  "devDependencies": {
+    "@biomejs/biome": "catalog:biome",
+    "@changesets/changelog-github": "0.5.1",
+    "@changesets/cli": "2.29.5",
+    "@virtual-live-lab/eslint-config": "catalog:eslint",
+    "@virtual-live-lab/tsconfig": "catalog:typescript",
+    "eslint": "catalog:eslint",
+    "pkg-pr-new": "0.0.54",
+    "typescript": "catalog:typescript",
+    "typescript-eslint": "catalog:eslint",
+    "vitest": "catalog:test"
+  }
+}
