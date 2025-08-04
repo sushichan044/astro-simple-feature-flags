@@ -58,6 +58,7 @@
     "build": "tsdown"
   },
   "dependencies": {
+    "eslint-plugin-toplevel": "1.2.0",
     "jiti": "^2.5.1"
   },
   "devDependencies": {
