@@ -2,6 +2,7 @@
   "extends": "@virtual-live-lab/tsconfig/base",
   "compilerOptions": {
     "module": "preserve",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "types": ["node", "vite/client"]
   }
 }
