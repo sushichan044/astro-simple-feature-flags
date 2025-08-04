@@ -1,4 +1,4 @@
-import type { AnyZodObject, TypeOf } from "zod";
+import type { AnyZodObject, TypeOf } from "astro/zod";
 
 import type { ViteModeType } from "../vite";
 
