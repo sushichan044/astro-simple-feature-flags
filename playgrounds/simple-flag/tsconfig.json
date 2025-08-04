@@ -1,0 +1,9 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [
+    ".astro/types.d.ts",
+    "**/*",
+    ".astro/integrations/astro-feature-flags/flags.d.ts"
+  ],
+  "exclude": ["dist"]
+}
