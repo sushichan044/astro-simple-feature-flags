@@ -190,6 +190,8 @@ Set custom Vite modes for different deployment targets:
 
 Params and return types for `queryFeatureFlag` are fully typed automatically.
 
+See `.astro/integrations/astro-simple-feature-flags/flags.d.ts` for the generated types in your Astro project.
+
 > [!WARNING]
 > You must run `astro sync` after you changed the value of `configFileName` in your integration config.
 
@@ -202,15 +204,9 @@ Params and return types for `queryFeatureFlag` are fully typed automatically.
 
 ### Contributing
 
-We welcome contributions! Here's how to get started:
+Contributions are welcome! Feel free to submit PRs. TODO: add `CONTRIBUTING.md`
 
-1. **Fork the repository**
-2. **Clone your fork**: `git clone https://github.com/yourusername/astro-simple-feature-flags.git`
-3. **Install dependencies**: `pnpm install`
-4. **Make your changes**
-5. **Format your code**: `pnpm format`
-6. **Test thoroughly**: `pnpm typecheck && pnpm lint`
-7. **Submit a pull request**
+1. **Submit a pull request**
 
 ### Development Setup
 
@@ -233,7 +229,7 @@ pnpm --filter @repo/playgrounds-simple-flag dev
 
 - **Astro Documentation**: <https://docs.astro.build>
 - **Astro Integration API**: <https://docs.astro.build/en/reference/integrations-reference/>
-- **Astro AContent Loader API**: <https://docs.astro.build/en/reference/content-loader-reference/>
+- **Astro Content Loader API**: <https://docs.astro.build/en/reference/content-loader-reference/>
 
 ### Changelog
 
