@@ -4,7 +4,10 @@
   "description": "A simple feature flags integration for Astro. Powered by Content Layer.",
   "type": "module",
   "sideEffects": false,
-  "author": "sushichan044",
+  "author": {
+    "name": "sushichan044",
+    "url": "https://github.com/sushichan044"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -14,12 +17,23 @@
   "bugs": {
     "url": "https://github.com/sushichan044/astro-simple-feature-flags/issues"
   },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/",
+    "provenance": true
+  },
   "keywords": [
     "withastro",
     "astro-integration",
     "astro",
     "astrojs",
     "feature-flags"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
   ],
   "exports": {
     ".": {
