@@ -1,5 +1,11 @@
 # @repo/playgrounds-simple-flag
 
+## 0.0.4
+### Patch Changes
+
+- Updated dependencies [[`bad4ad2`](https://github.com/sushichan044/astro-simple-feature-flags/commit/bad4ad27991ebc5fc19020c64ec4fd0b517b2338)]:
+  - astro-simple-feature-flags@0.0.3
+
 ## 0.0.3
 ### Patch Changes
 

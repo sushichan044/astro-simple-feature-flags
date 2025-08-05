@@ -1,5 +1,12 @@
 # astro-simple-feature-flags
 
+## 0.0.3
+### Patch Changes
+
+
+
+- [#6](https://github.com/sushichan044/astro-simple-feature-flags/pull/6) [`bad4ad2`](https://github.com/sushichan044/astro-simple-feature-flags/commit/bad4ad27991ebc5fc19020c64ec4fd0b517b2338) Thanks [@sushichan044](https://github.com/sushichan044)! - Refactor types in virtual module
+
 ## 0.0.2
 ### Patch Changes
 
