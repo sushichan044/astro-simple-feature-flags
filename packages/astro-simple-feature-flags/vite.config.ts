@@ -13,6 +13,7 @@ export default defineConfig({
       ],
     }),
   ],
+  // @ts-expect-error type mismatch!
   test: {
     globals: false,
   },
