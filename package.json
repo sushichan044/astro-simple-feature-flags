@@ -2,16 +2,17 @@
   "name": "@repo/astro-simple-feature-flags-root",
   "version": "1.0.0",
   "private": true,
-  "description": "",
   "scripts": {
     "lint": "pnpm -r run lint",
     "test": "vitest --run",
     "format": "biome format --write .",
-    "typecheck": "pnpm -r run typecheck"
+    "typecheck": "pnpm -r run typecheck",
+    "build": "pnpm run build:astro-simple-feature-flags",
+    "build:astro-simple-feature-flags": "pnpm --filter astro-simple-feature-flags run build",
+    "pkg-pr-new": "pkg-pr-new publish --compact --comment=update --pnpm",
+    "release": "pnpm run build && changeset publish",
+    "changeset": "changeset"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "packageManager": "pnpm@10.13.1",
   "type": "module",
   "devDependencies": {
