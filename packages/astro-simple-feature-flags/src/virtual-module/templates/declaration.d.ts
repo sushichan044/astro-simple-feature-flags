@@ -2,7 +2,7 @@
 // @ts-nocheck
 
 declare module "@@__VIRTUAL_MODULE_ID__@@" {
-  type Module = typeof import("@@__RESOLVED_CONFIG_PATH__@@");
+  type Module = typeof import("@@__CONFIG_MODULE_ID__@@");
 
   type ResolvedFlags = GetExport<Module, "default">;
 

@@ -68,7 +68,7 @@ export const simpleFeatureFlags = (
         injectTypes({
           // 3: Inject rest virtual module dts, which depends on internal dts URL.
           content: compileVirtualModuleDts(_macroVirtualModuleDts.code, {
-            resolvedConfigPath: configModulePathFromDts,
+            configModuleId: configModulePathFromDts,
           }),
           filename: _macroVirtualModuleDts.filename,
         });

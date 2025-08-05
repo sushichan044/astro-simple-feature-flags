@@ -1,7 +1,8 @@
+import { normalizeModuleId } from "../codegen/module";
 import { VIRTUAL_MODULE_ID } from "../constant";
 
 type VirtualModuleDtsParams = {
-  resolvedConfigPath: string;
+  configModuleId: string;
 };
 
 export const compileVirtualModuleDts = (
@@ -9,7 +10,10 @@ export const compileVirtualModuleDts = (
   params: VirtualModuleDtsParams,
 ): string => {
   return template
-    .replace("@@__RESOLVED_CONFIG_PATH__@@", params.resolvedConfigPath)
+    .replace(
+      "@@__CONFIG_MODULE_ID__@@",
+      normalizeModuleId(params.configModuleId),
+    )
     .replace("@@__VIRTUAL_MODULE_ID__@@", VIRTUAL_MODULE_ID);
 };
 
