@@ -11,16 +11,18 @@ describe("SSG", () => {
     { expected: "Current mode: production", mode: "production" },
   ];
 
-  it.each(tc)("works in $mode mode", async (t) => {
-    const idx = tc.findIndex((c) => c.mode === t.mode);
-    await using server = await createPreviewServer({
-      mode: t.mode,
-      port: BASE_PORTS.SSG + idx,
-    });
+  it.each(tc.map((c, idx) => ({ ...c, idx })))(
+    "works in $mode mode",
+    async (t) => {
+      await using server = await createPreviewServer({
+        mode: t.mode,
+        port: BASE_PORTS.SSG + t.idx,
+      });
 
-    const res = await server.fetch("/ssg");
-    const html = await res.text();
+      const res = await server.fetch("/ssg");
+      const html = await res.text();
 
-    expect(html).toContain(t.expected);
-  });
+      expect(html).toContain(t.expected);
+    },
+  );
 });
