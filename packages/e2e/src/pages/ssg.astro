@@ -1,0 +1,13 @@
+---
+import { queryFeatureFlag } from "virtual:astro-simple-feature-flags";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const mode = await queryFeatureFlag("mode");
+
+export const prerender = true;
+---
+
+<BaseLayout>
+    <h1>Hello World</h1>
+    <p>Current mode: {mode}</p>
+</BaseLayout>
