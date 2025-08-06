@@ -32,6 +32,7 @@ export const createPreviewServer = async (
   vi.stubEnv("MODE", options.mode);
 
   const config = {
+    cacheDir: `./node_modules/.cache/astro/${options.port}`,
     outDir: `./dist/${options.port}`,
     server: {
       port: options.port,
