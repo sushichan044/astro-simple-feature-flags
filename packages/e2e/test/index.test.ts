@@ -7,6 +7,9 @@ import { describe, expect, it } from "vitest";
 
 type AcceptableViteMode = FeatureFlagConfig["viteMode"][number];
 
+// https://github.com/vitest-dev/vitest/discussions/1606
+// without this function, feature flag always query for `test` mode
+// since Vitest set `import.meta.env.MODE` to `test` by default
 const overrideViteMode = (mode: AcceptableViteMode) => {
   const currentMode = import.meta.env.MODE;
   import.meta.env.MODE = mode;
