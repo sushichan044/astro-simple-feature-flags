@@ -2,7 +2,7 @@
   "name": "@repo/playgrounds-simple-flag",
   "type": "module",
   "private": true,
-  "version": "0.0.4",
+  "version": "0.0.5",
   "scripts": {
     "dev": "astro dev",
     "dev:staging": "astro dev --mode staging",
