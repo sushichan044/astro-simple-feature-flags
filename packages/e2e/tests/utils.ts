@@ -7,7 +7,7 @@ import { vi } from "vitest";
 export type AcceptableViteMode = FeatureFlagConfig["viteMode"][number];
 
 export const withIndex = <T>(arr: T[]): Array<T & { idx: number }> => {
-  return arr.map((item, idx) => ({ ...item, idx }));
+  return arr.map((item, idx) => Object.assign({}, item, { idx }));
 };
 
 type DisposablePreviewServer = PreviewServer & {
