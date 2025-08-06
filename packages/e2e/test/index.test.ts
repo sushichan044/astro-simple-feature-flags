@@ -1,7 +1,6 @@
-import type { AstroInlineConfig, PreviewServer } from "astro";
+import type { PreviewServer } from "astro";
 import type { FeatureFlagConfig } from "virtual:astro-simple-feature-flags";
 
-import node from "@astrojs/node";
 import { build, preview } from "astro";
 import { describe, expect, it, vi } from "vitest";
 
@@ -24,13 +23,8 @@ const createPreviewServer = async (
 ): Promise<DisposablePreviewServer> => {
   vi.stubEnv("MODE", options.mode);
 
-  const config = {
-    adapter: node({ mode: "standalone" }),
-    output: "server",
-  } satisfies AstroInlineConfig;
-
-  await build(config, { devOutput: true, teardownCompiler: false });
-  const previewServer = await preview(config);
+  await build({}, { devOutput: true, teardownCompiler: false });
+  const previewServer = await preview({});
 
   return {
     ...previewServer,
