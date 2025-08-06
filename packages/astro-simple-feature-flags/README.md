@@ -125,7 +125,7 @@ That's it! Your feature flags are now working with full type safety and environm
 
 ### Requirements
 
-See `engines.node` and `peerDependencies` in [package.json](./package.json) for supported Node.js and Astro versions.
+See `engines.node` and `peerDependencies` in [package.json](/packages/astro-simple-feature-flags/package.json) for supported Node.js and Astro versions.
 
 ### Step-by-Step Installation
 
@@ -233,7 +233,7 @@ pnpm --filter @repo/playgrounds-simple-flag dev
 
 ### Changelog
 
-See [CHANGELOG.md](./CHANGELOG.md) for version history and release notes.
+See [CHANGELOG.md](/packages/astro-simple-feature-flags/CHANGELOG.md) for version history and release notes.
 
 ---
 
