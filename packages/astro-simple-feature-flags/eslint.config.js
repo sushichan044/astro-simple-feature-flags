@@ -3,6 +3,7 @@ import topLevel from "eslint-plugin-toplevel";
 import { defineConfig } from "eslint/config";
 
 export default defineConfig(ts, {
+  ignores: ["**/*.{test,spec}.{js,ts}"],
   plugins: {
     toplevel: topLevel,
   },
