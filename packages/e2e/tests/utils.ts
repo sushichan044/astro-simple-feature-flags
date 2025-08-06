@@ -5,6 +5,10 @@ import type {
 import type { FeatureFlagConfig } from "virtual:astro-simple-feature-flags";
 
 import { build, preview } from "astro";
+import { existsSync } from "node:fs";
+import { mkdtemp, rmdir } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { vi } from "vitest";
 
 export type AcceptableViteMode = FeatureFlagConfig["viteMode"][number];
@@ -18,6 +22,23 @@ export const BASE_PORTS = {
   SSR: 4000,
 } as const;
 
+export const createTempDir = async (): Promise<
+  AsyncDisposable & { path: string }
+> => {
+  const path = await mkdtemp(join(tmpdir(), "astro-simple-feature-flags-e2e"));
+
+  const close = async () => {
+    if (existsSync(path)) {
+      await rmdir(path, { recursive: true });
+    }
+  };
+
+  return {
+    path,
+    [Symbol.asyncDispose]: close,
+  };
+};
+
 interface PreviewServer extends AstroPreviewServer, AsyncDisposable {
   fetch: (path: string, options?: RequestInit) => Promise<Response>;
 }
@@ -25,6 +46,7 @@ interface PreviewServer extends AstroPreviewServer, AsyncDisposable {
 type PreviewServerOptions = {
   mode: AcceptableViteMode;
   port: number;
+  tmpDir: string;
 };
 
 export const createPreviewServer = async (
@@ -32,11 +54,18 @@ export const createPreviewServer = async (
 ): Promise<PreviewServer> => {
   vi.stubEnv("MODE", options.mode);
 
+  const cacheDir = join(options.tmpDir, "astro-cache");
+  const outDir = join(options.tmpDir, "astro-out");
+  const viteCacheDir = join(options.tmpDir, "vite-cache");
+
   const config = {
-    cacheDir: `./node_modules/.cache/astro/${options.port}`,
-    outDir: `./dist/${options.port}`,
+    cacheDir,
+    outDir,
     server: {
       port: options.port,
+    },
+    vite: {
+      cacheDir: viteCacheDir,
     },
   } satisfies AstroInlineConfig;
 
