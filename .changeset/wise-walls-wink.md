@@ -1,7 +1,7 @@
 ---
-"astro-simple-feature-flags": patch
-"@repo/e2e": patch
-"@repo/playgrounds-simple-flag": patch
+"astro-simple-feature-flags": minor
+"@repo/e2e": minor
+"@repo/playgrounds-simple-flag": minor
 ---
 
 fix!: remove argument from `defineFeatureFlagCollection()`
