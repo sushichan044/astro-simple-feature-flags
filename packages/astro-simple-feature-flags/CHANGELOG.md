@@ -1,5 +1,12 @@
 # astro-simple-feature-flags
 
+## 0.0.4
+### Patch Changes
+
+
+
+- [#14](https://github.com/sushichan044/astro-simple-feature-flags/pull/14) [`c27e6d6`](https://github.com/sushichan044/astro-simple-feature-flags/commit/c27e6d634dad10d0edd17bb762b9b0aa34e4163f) Thanks [@sushichan044](https://github.com/sushichan044)! - fix: convert module IDs to use correct extensions in .d.ts files
+
 ## 0.0.3
 ### Patch Changes
 
