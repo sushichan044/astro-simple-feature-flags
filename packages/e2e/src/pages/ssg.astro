@@ -3,6 +3,8 @@ import { queryFeatureFlag } from "virtual:astro-simple-feature-flags";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 const mode = await queryFeatureFlag("mode");
+
+export const prerender = true;
 ---
 
 <BaseLayout>

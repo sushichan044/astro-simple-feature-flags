@@ -54,13 +54,27 @@ describe("e2e", () => {
     { expected: "Current mode: production", mode: "production" },
   ];
 
-  it.each(tc)("works in %s mode", async ({ expected, mode }) => {
-    await using preview = await createPreviewServer({ mode });
-    const fetchServer = createFetchServer(preview);
+  describe("pre-rendered page (SSG)", () => {
+    it.each(tc)("works in $mode mode", async ({ expected, mode }) => {
+      await using preview = await createPreviewServer({ mode });
+      const fetchServer = createFetchServer(preview);
 
-    const res = await fetchServer("/");
-    const html = await res.text();
+      const res = await fetchServer("/ssg");
+      const html = await res.text();
 
-    expect(html).toContain(expected);
+      expect(html).toContain(expected);
+    });
+  });
+
+  describe("on-demand-rendered page (SSR)", () => {
+    it.each(tc)("works in $mode mode", async ({ expected, mode }) => {
+      await using preview = await createPreviewServer({ mode });
+      const fetchServer = createFetchServer(preview);
+
+      const res = await fetchServer("/ssr");
+      const html = await res.text();
+
+      expect(html).toContain(expected);
+    });
   });
 });
