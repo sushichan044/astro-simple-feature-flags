@@ -1,0 +1,27 @@
+{
+  "name": "@repo/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint --max-warnings 0 --fix .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest --run"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:biome",
+    "@types/node": "24.1.0",
+    "@virtual-live-lab/eslint-config": "catalog:eslint",
+    "@virtual-live-lab/tsconfig": "catalog:typescript",
+    "eslint": "catalog:eslint",
+    "typescript": "catalog:typescript",
+    "typescript-eslint": "catalog:eslint",
+    "vitest": "catalog:test"
+  },
+  "dependencies": {
+    "@astrojs/node": "9.3.3",
+    "astro": "^5.0.0",
+    "astro-simple-feature-flags": "workspace:*"
+  }
+}
