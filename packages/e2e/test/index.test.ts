@@ -3,21 +3,9 @@ import type { FeatureFlagConfig } from "virtual:astro-simple-feature-flags";
 
 import node from "@astrojs/node";
 import { build, preview } from "astro";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 type AcceptableViteMode = FeatureFlagConfig["viteMode"][number];
-
-// https://github.com/vitest-dev/vitest/discussions/1606
-// without this function, feature flag always query for `test` mode
-// since Vitest set `import.meta.env.MODE` to `test` by default
-const overrideViteMode = (mode: AcceptableViteMode) => {
-  const currentMode = import.meta.env.MODE;
-  import.meta.env.MODE = mode;
-
-  return () => {
-    import.meta.env.MODE = currentMode;
-  };
-};
 
 type DisposablePreviewServer = PreviewServer & {
   /**
@@ -34,15 +22,12 @@ type PreviewServerOptions = {
 const createPreviewServer = async (
   options: PreviewServerOptions,
 ): Promise<DisposablePreviewServer> => {
+  vi.stubEnv("MODE", options.mode);
+
   const config = {
     adapter: node({ mode: "standalone" }),
-    mode: options.mode,
     output: "server",
-    vite: {
-      mode: options.mode,
-    },
   } satisfies AstroInlineConfig;
-  const restoreViteMode = overrideViteMode(options.mode);
 
   await build(config, { devOutput: true, teardownCompiler: false });
   const previewServer = await preview(config);
@@ -51,7 +36,6 @@ const createPreviewServer = async (
     ...previewServer,
     [Symbol.asyncDispose]: async () => {
       await previewServer.stop();
-      restoreViteMode();
     },
   };
 };
