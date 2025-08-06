@@ -1,12 +1,9 @@
-import type {
-  BaseSchema,
-  CollectionConfig,
-  defineCollection as defineAstroCollection,
-} from "astro/content/config";
+import type { BaseSchema, CollectionConfig } from "astro/content/config";
 import type { LoaderContext } from "astro/loaders";
 
 import { AstroError } from "astro/errors";
 import { z } from "astro/zod";
+import { defineCollection } from "astro:content";
 import { relative } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -22,11 +19,10 @@ import { INTEGRATION_NAME } from "./constant";
 import { isNonEmptyString } from "./utils/string";
 import { getViteMode } from "./vite";
 
-type DefineCollectionFn = typeof defineAstroCollection;
-
-export const defineFeatureFlagCollection = (
-  defineCollection: DefineCollectionFn,
-): Record<FeatureFlagCollectionName, CollectionConfig<BaseSchema>> => {
+export const defineFeatureFlagCollection = (): Record<
+  FeatureFlagCollectionName,
+  CollectionConfig<BaseSchema>
+> => {
   return {
     "astro-simple-feature-flags": defineCollection({
       loader: {

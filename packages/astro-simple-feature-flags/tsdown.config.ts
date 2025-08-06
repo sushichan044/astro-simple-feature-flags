@@ -16,6 +16,10 @@ export default defineConfig({
   nodeProtocol: true,
   treeshake: true,
 
+  external: [
+    /^astro:/, // Marking Astro's virtual modules as external
+  ],
+
   // inherit from vite
   fromVite: true,
 
