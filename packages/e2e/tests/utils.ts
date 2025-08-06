@@ -43,14 +43,14 @@ export const createPreviewServer = async (
 
   return {
     ...previewServer,
-    fetch: createFetchServer(previewServer),
+    fetch: createFetch(previewServer),
     [Symbol.asyncDispose]: async () => {
       await previewServer.stop();
     },
   };
 };
 
-const createFetchServer =
+const createFetch =
   (server: PreviewServer) =>
   async (path: string, options: RequestInit = {}) => {
     const url = new URL(path, `http://${server.host}:${server.port}`);
