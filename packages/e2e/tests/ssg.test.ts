@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import type { AcceptableViteMode } from "./utils";
 
-import { BASE_PORTS, createPreviewServer, withIndex } from "./utils";
+import {
+  BASE_PORTS,
+  createPreviewServer,
+  createTempDir,
+  withIndex,
+} from "./utils";
 
 describe("SSG", () => {
   const tc: Array<{ expected: string; mode: AcceptableViteMode }> = [
@@ -12,9 +17,11 @@ describe("SSG", () => {
   ];
 
   it.each(withIndex(tc))("works in $mode mode", async (t) => {
+    await using tmpDir = await createTempDir();
     await using server = await createPreviewServer({
       mode: t.mode,
       port: BASE_PORTS.SSG + t.idx,
+      tmpDir: tmpDir.path,
     });
 
     const res = await server.fetch("/ssg");
