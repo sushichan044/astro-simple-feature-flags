@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { AcceptableViteMode } from "./utils";
 
-import { BASE_PORTS, createPreviewServer } from "./utils";
+import { BASE_PORTS, createPreviewServer, withIndex } from "./utils";
 
 describe("SSR", () => {
   const tc: Array<{ expected: string; mode: AcceptableViteMode }> = [
@@ -11,11 +11,10 @@ describe("SSR", () => {
     { expected: "Current mode: production", mode: "production" },
   ];
 
-  it.each(tc)("works in $mode mode", async (t) => {
-    const idx = tc.findIndex((c) => c.mode === t.mode);
+  it.each(withIndex(tc))("works in $mode mode", async (t) => {
     await using server = await createPreviewServer({
       mode: t.mode,
-      port: BASE_PORTS.SSR + idx,
+      port: BASE_PORTS.SSR + t.idx,
     });
 
     const res = await server.fetch("/ssr");
