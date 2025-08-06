@@ -1,4 +1,4 @@
-import { normalizeModuleId } from "../codegen/module";
+import { transformModuleIdForDts } from "../codegen/dts";
 import { VIRTUAL_MODULE_ID } from "../constant";
 
 type VirtualModuleDtsParams = {
@@ -12,7 +12,7 @@ export const compileVirtualModuleDts = (
   return template
     .replace(
       "@@__CONFIG_MODULE_ID__@@",
-      normalizeModuleId(params.configModuleId),
+      transformModuleIdForDts(params.configModuleId),
     )
     .replace("@@__VIRTUAL_MODULE_ID__@@", VIRTUAL_MODULE_ID);
 };
