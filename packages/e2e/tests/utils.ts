@@ -1,4 +1,7 @@
-import type { AstroInlineConfig, PreviewServer } from "astro";
+import type {
+  AstroInlineConfig,
+  PreviewServer as AstroPreviewServer,
+} from "astro";
 import type { FeatureFlagConfig } from "virtual:astro-simple-feature-flags";
 
 import { build, preview } from "astro";
@@ -10,29 +13,23 @@ export const withIndex = <T>(arr: T[]): Array<T & { idx: number }> => {
   return arr.map((item, idx) => Object.assign({}, item, { idx }));
 };
 
-type DisposablePreviewServer = PreviewServer & {
-  /**
-   * Resource management cleanup
-   * https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html
-   */
-  [Symbol.asyncDispose](): Promise<void>;
+export const BASE_PORTS = {
+  SSG: 3000,
+  SSR: 4000,
+} as const;
 
+interface PreviewServer extends AstroPreviewServer, AsyncDisposable {
   fetch: (path: string, options?: RequestInit) => Promise<Response>;
-};
+}
 
 type PreviewServerOptions = {
   mode: AcceptableViteMode;
   port: number;
 };
 
-export const BASE_PORTS = {
-  SSG: 3000,
-  SSR: 4000,
-} as const;
-
 export const createPreviewServer = async (
   options: PreviewServerOptions,
-): Promise<DisposablePreviewServer> => {
+): Promise<PreviewServer> => {
   vi.stubEnv("MODE", options.mode);
 
   const config = {
@@ -56,7 +53,7 @@ export const createPreviewServer = async (
 };
 
 const createFetch =
-  (server: PreviewServer) =>
+  (server: AstroPreviewServer) =>
   async (path: string, options: RequestInit = {}) => {
     const url = new URL(path, `http://${server.host}:${server.port}`);
     return fetch(url, options);
