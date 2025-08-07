@@ -7,14 +7,14 @@ declare module "@@__VIRTUAL_MODULE_ID__@@" {
     "default"
   >;
 
-  type FeatureFlagShape = import("astro/zod").output<
+  type FeatureFlagDataShape = import("astro/zod").output<
     FeatureFlagConfig["schema"]
   >;
 
-  export type FeatureFlagKey = keyof FeatureFlagShape;
+  export type FeatureFlagKey = keyof FeatureFlagDataShape;
 
   type QueryFeatureFlag<TKey extends FeatureFlagKey> =
-    TKey extends FeatureFlagKey ? FeatureFlagShape[TKey] : never;
+    TKey extends FeatureFlagKey ? FeatureFlagDataShape[TKey] : never;
 
   export function queryFeatureFlag<TKey extends FeatureFlagKey>(
     flag: TKey,
