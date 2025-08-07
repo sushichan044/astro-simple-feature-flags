@@ -14,9 +14,12 @@ export const astroFeatureFlagVirtualModPlugin = (): Plugin => {
   return {
     load: (id) => {
       if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-        return compileVirtualModuleImpl(_macroVirtualModuleImpl, {
-          featureFlagsCollectionsName: FEATURE_FLAG_COLLECTION_NAME,
-        });
+        return {
+          code: compileVirtualModuleImpl(_macroVirtualModuleImpl, {
+            featureFlagsCollectionsName: FEATURE_FLAG_COLLECTION_NAME,
+          }),
+          map: null, // No source map
+        };
       }
       // Delegate to Vite's default resolver
       return null;
