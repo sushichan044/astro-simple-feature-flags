@@ -78,7 +78,7 @@
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:build",
     "@biomejs/biome": "catalog:biome",
-    "@types/node": "24.1.0",
+    "@types/node": "catalog:node",
     "@typescript/native-preview": "^7.0.0-dev.20250804.1",
     "@virtual-live-lab/eslint-config": "catalog:eslint",
     "@virtual-live-lab/tsconfig": "catalog:typescript",

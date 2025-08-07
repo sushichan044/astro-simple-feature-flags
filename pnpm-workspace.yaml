@@ -21,6 +21,8 @@ catalogs:
   typescript:
     '@virtual-live-lab/tsconfig': 2.1.21
     typescript: 5.8.3
+  node:
+    '@types/node': 24.2.0
 
 onlyBuiltDependencies:
   - esbuild
