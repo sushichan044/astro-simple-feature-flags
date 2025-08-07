@@ -7,6 +7,14 @@ inputs:
     description: "Optional registry to set up for auth. Will set the registry in a project level .npmrc and .yarnrc file, and set up auth to read in from env.NODE_AUTH_TOKEN."
     required: false
     default: ""
+  node-version-file:
+    description: "Path to a file containing the Node.js version to use. If not set, defaults to '.node-version'."
+    required: false
+    default: ".node-version"
+  node-version:
+    description: "Details the Node.js version to use. If not set, it will read from the file specified in 'node-version-file'."
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -21,10 +29,19 @@ runs:
       shell: bash
       run: echo "store_path=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
 
-    - name: Setup Node.js
+    - name: Setup Node.js with node version
+      if: ${{ inputs.node-version != '' }}
+      id: setup-node-with-version
       uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
-        node-version-file: .node-version
+        node-version: ${{ inputs.node-version }}
+        registry-url: ${{ inputs.registry-url }}
+
+    - name: Setup Node.js with node version file
+      if: ${{ steps.setup-node-with-version.conclusion != 'success' }}
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      with:
+        node-version-file: ${{ inputs.node-version-file }}
         registry-url: ${{ inputs.registry-url }}
 
     - name: Restore pnpm cache
