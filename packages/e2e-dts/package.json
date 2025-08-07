@@ -21,7 +21,6 @@
     "vitest": "catalog:test"
   },
   "dependencies": {
-    "@astrojs/node": "9.3.3",
     "astro": "^5.0.0",
     "astro-simple-feature-flags": "workspace:*"
   }
