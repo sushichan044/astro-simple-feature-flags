@@ -107,6 +107,9 @@ importers:
       '@virtual-live-lab/tsconfig':
         specifier: catalog:typescript
         version: 2.1.21(typescript@5.8.3)
+      amaro:
+        specifier: 1.1.1
+        version: 1.1.1
       astro:
         specifier: 5.12.8
         version: 5.12.8(@types/node@24.2.0)(jiti@2.5.1)(rollup@4.46.2)(typescript@5.8.3)(yaml@2.8.0)
@@ -1333,6 +1336,10 @@ packages:
 
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
+
+  amaro@1.1.1:
+    resolution: {integrity: sha512-0+T4jGuJcCLqq/tyAXZHspTn1cCt2G8wLY0gjO/03uRf/q6B/HzsFJSYo83ge9eVGz0yaQ2uUCw/KS6mrjpTIA==}
+    engines: {node: '>=22'}
 
   ansi-align@3.0.1:
     resolution: {integrity: sha512-IOfwwBF5iczOjp/WeY4YxyjqAFMQoZufdQWDd19SEExbVLNXqvpzSJ/M7Za4/sCPmQ0+GRquoA7bGcINcxew6w==}
@@ -5184,6 +5191,8 @@ snapshots:
       fast-json-stable-stringify: 2.1.0
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
+
+  amaro@1.1.1: {}
 
   ansi-align@3.0.1:
     dependencies:
