@@ -19,7 +19,7 @@ export const _macroVirtualModuleDts = {
 } as const;
 
 // Write virtual module implementation with typescript, and transform it to javascript in build-time macro.
-// `nodejs/amaro` lib requires Node.js 22+, so developer must use Node.js 22+ to build the project.
+// We enabled `erasableSyntaxOnly` to disallow syntaxes like `namespace` that cannot be transpiled.
 export const _macroVirtualModuleImpl = transformSync(
   readFileSync(
     new URL("./templates/implementation.ts", import.meta.url),
