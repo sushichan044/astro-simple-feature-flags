@@ -82,6 +82,7 @@
     "@typescript/native-preview": "^7.0.0-dev.20250804.1",
     "@virtual-live-lab/eslint-config": "catalog:eslint",
     "@virtual-live-lab/tsconfig": "catalog:typescript",
+    "amaro": "1.1.1",
     "astro": "5.12.8",
     "eslint": "catalog:eslint",
     "eslint-plugin-toplevel": "1.2.0",
