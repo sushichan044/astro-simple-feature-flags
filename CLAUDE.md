@@ -33,25 +33,9 @@ $ tree --gitignore -d -L 2
 
 - `pnpm lint` - Run lint for all packages
 - `pnpm test` - Run Vitest tests
+  - You need to run `pnpm build` first to generate types
 - `pnpm format` - Apply Biome formatting
 - `pnpm typecheck` - Run type checking for all packages
-
-### Package Directory (`packages/astro-simple-feature-flags/`)
-
-expected cwd: repository root
-
-- `pnpm --filter astro-simple-feature-flags build` - Build with tsdown
-- `pnpm --filter astro-simple-feature-flags test` - Run Vitest tests
-- `pnpm --filter astro-simple-feature-flags lint` - Run ESLint
-- `pnpm --filter astro-simple-feature-flags typecheck` - Run TypeScript type checking
-
-### Playground (`playgrounds/simple-flag/`)
-
-expected cwd: repository root
-
-- `pnpm --filter @repo/playgrounds-simple-flag dev` - Start development server (localhost:4321)
-- `pnpm --filter @repo/playgrounds-simple-flag build` - Production build
-- `pnpm --filter @repo/playgrounds-simple-flag preview` - Preview build
 
 ## Package Management
 
