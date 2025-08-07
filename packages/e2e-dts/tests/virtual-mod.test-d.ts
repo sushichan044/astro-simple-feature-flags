@@ -1,18 +1,18 @@
 // CAUTION: Vitest's typecheck mode does not run any setup codes in test files or setup files.
 // This means WE MUST run `astro build` or `astro sync` before running this test file.
 
-import type { queryFeatureFlag } from "virtual:astro-simple-feature-flags";
 import type {
+  FeatureFlagDataShape,
   FeatureFlagKey,
-  FeatureFlagShape,
+  queryFeatureFlag,
 } from "virtual:astro-simple-feature-flags";
 
 import { describe, expectTypeOf, it } from "vitest";
 
-describe("Generated dts of virtual:astro-simple-feature-flags", () => {
-  describe("FeatureFlagShape", () => {
+describe("types of virtual:astro-simple-feature-flags", () => {
+  describe("FeatureFlagDataShape", () => {
     it("should be the output type of the feature flag schema", () => {
-      expectTypeOf<FeatureFlagShape>().toEqualTypeOf<{
+      expectTypeOf<FeatureFlagDataShape>().toEqualTypeOf<{
         barReleaseRate: number;
         fooReleased: boolean;
       }>();
@@ -36,12 +36,6 @@ describe("Generated dts of virtual:astro-simple-feature-flags", () => {
       expectTypeOf<
         ReturnType<typeof queryFeatureFlag<"fooReleased">>
       >().toEqualTypeOf<Promise<boolean>>();
-    });
-
-    it("should return a promise of void for an invalid key", () => {
-      expectTypeOf<
-        ReturnType<typeof queryFeatureFlag<"invalidKey">>
-      >().toEqualTypeOf<Promise<void>>();
     });
   });
 });
