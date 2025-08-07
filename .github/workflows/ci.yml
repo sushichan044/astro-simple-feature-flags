@@ -40,11 +40,7 @@ jobs:
 
       - name: Run Biome
         run: |
-          pnpm run format
-          if ! git diff --exit-code; then
-            echo "Biome format failed. Please run 'pnpm run format' to fix the issues."
-            exit 1
-          fi
+          pnpm run format:check
 
       - name: Run typecheck
         run: pnpm run typecheck
