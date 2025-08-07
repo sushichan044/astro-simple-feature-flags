@@ -6,6 +6,4 @@ declare module "@@__VIRTUAL_MODULE_ID__@@" {
     TMod extends Record<string, unknown>,
     TKey extends string,
   > = TKey extends keyof TMod ? TMod[TKey] : never;
-
-  type AnyStringLiteral = string & Record<never, never>;
 }

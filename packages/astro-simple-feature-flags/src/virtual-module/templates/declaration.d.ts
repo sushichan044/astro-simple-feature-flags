@@ -13,11 +13,10 @@ declare module "@@__VIRTUAL_MODULE_ID__@@" {
 
   export type FeatureFlagKey = keyof FeatureFlagShape;
 
-  type QueryFeatureFlag<TKey extends string> = TKey extends FeatureFlagKey
-    ? FeatureFlagShape[TKey]
-    : void;
+  type QueryFeatureFlag<TKey extends FeatureFlagKey> =
+    TKey extends FeatureFlagKey ? FeatureFlagShape[TKey] : never;
 
-  export function queryFeatureFlag<
-    TKey extends FeatureFlagKey | AnyStringLiteral,
-  >(flag: TKey): Promise<QueryFeatureFlag<TKey>>;
+  export function queryFeatureFlag<TKey extends FeatureFlagKey>(
+    flag: TKey,
+  ): Promise<QueryFeatureFlag<TKey>>;
 }
