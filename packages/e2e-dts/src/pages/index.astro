@@ -1,5 +1,7 @@
 ---
+import { queryFeatureFlag } from "virtual:astro-simple-feature-flags";
 
+const barReleaseRate = await queryFeatureFlag("barReleaseRate");
 ---
 
 <html lang="en">
@@ -12,5 +14,6 @@
 	</head>
 	<body>
 		<h1>Astro</h1>
+		<p>Current barReleaseRate: {barReleaseRate}</p>
 	</body>
 </html>
