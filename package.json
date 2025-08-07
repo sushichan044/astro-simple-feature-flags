@@ -7,9 +7,10 @@
     "test": "vitest --run",
     "format": "biome format --write .",
     "typecheck": "pnpm -r run typecheck",
-    "build": "pnpm run build:astro-simple-feature-flags && pnpm run build:e2e",
+    "build": "pnpm run build:astro-simple-feature-flags && pnpm run build:e2e && pnpm run build:e2e-dts",
     "build:astro-simple-feature-flags": "pnpm --filter astro-simple-feature-flags run build",
     "build:e2e": "pnpm --filter e2e run build",
+    "build:e2e-dts": "pnpm --filter e2e-dts run build",
     "pkg-pr-new": "pkg-pr-new publish --compact --comment=update --pnpm",
     "release": "pnpm run build && changeset publish",
     "changeset": "changeset"
