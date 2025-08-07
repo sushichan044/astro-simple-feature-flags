@@ -7,6 +7,7 @@
  * All export from this file should be named with `_macro` prefix.
  */
 
+import { transformSync } from "amaro";
 import { readFileSync } from "node:fs";
 
 export const _macroVirtualModuleDts = {
@@ -17,10 +18,14 @@ export const _macroVirtualModuleDts = {
   filename: "flags.d.ts",
 } as const;
 
-export const _macroVirtualModuleImpl = readFileSync(
-  new URL("./templates/implementation.js", import.meta.url),
-  "utf8",
-);
+// Write virtual module implementation with typescript, and transform it to javascript in build-time macro.
+// `nodejs/amaro` lib requires Node.js 22+, so developer must use Node.js 22+ to build the project.
+export const _macroVirtualModuleImpl = transformSync(
+  readFileSync(
+    new URL("./templates/implementation.ts", import.meta.url),
+    "utf8",
+  ),
+).code;
 
 export const _macroVirtualModuleInternalDts = {
   code: readFileSync(
