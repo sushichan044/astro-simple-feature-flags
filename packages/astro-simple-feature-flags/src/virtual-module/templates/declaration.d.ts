@@ -2,10 +2,7 @@
 // @ts-nocheck
 
 declare module "@@__VIRTUAL_MODULE_ID__@@" {
-  type FeatureFlagConfig = GetExport<
-    typeof import("@@__CONFIG_MODULE_ID__@@"),
-    "default"
-  >;
+  type FeatureFlagConfig = typeof import("@@__CONFIG_MODULE_ID__@@").default;
 
   type FeatureFlagDataShape = import("astro/zod").output<
     FeatureFlagConfig["schema"]

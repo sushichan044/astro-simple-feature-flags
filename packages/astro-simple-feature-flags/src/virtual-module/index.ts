@@ -30,7 +30,3 @@ export const compileVirtualModuleImpl = (
     params.featureFlagsCollectionsName,
   );
 };
-
-export const compileVirtualModuleInternalDts = (template: string): string => {
-  return template.replace("@@__VIRTUAL_MODULE_ID__@@", VIRTUAL_MODULE_ID);
-};

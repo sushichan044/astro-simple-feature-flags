@@ -1,5 +1,5 @@
 import { AstroError } from "astro/errors";
-import { dirname, relative } from "node:path";
+import { relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { FeatureFlagIntegration } from "./types";
@@ -9,20 +9,17 @@ import {
   resolveFlagConfig,
 } from "./config/resolve";
 import { INTEGRATION_NAME } from "./constant";
-import {
-  compileVirtualModuleDts,
-  compileVirtualModuleInternalDts,
-} from "./virtual-module";
-import {
-  _macroVirtualModuleDts,
-  _macroVirtualModuleInternalDts,
-} from "./virtual-module/macro" with { type: "macro" };
+import { compileVirtualModuleDts } from "./virtual-module";
+import { _macroVirtualModuleDts } from "./virtual-module/macro" with {
+  type: "macro",
+};
 import { astroFeatureFlagVirtualModPlugin } from "./virtual-module/vite-plugin-flags-virtual-mod";
 
 export const simpleFeatureFlags = (
   options: Partial<FeatureFlagResolveOptions> = {},
 ): FeatureFlagIntegration => {
   const { configFileName = "flags" } = options;
+  let codeGenDir: URL;
 
   return {
     hooks: {
@@ -31,7 +28,8 @@ export const simpleFeatureFlags = (
         configFileName,
       },
 
-      "astro:config:setup": ({ updateConfig }) => {
+      "astro:config:setup": ({ createCodegenDir, updateConfig }) => {
+        codeGenDir = createCodegenDir();
         updateConfig({
           vite: {
             plugins: [astroFeatureFlagVirtualModPlugin()],
@@ -40,18 +38,6 @@ export const simpleFeatureFlags = (
       },
 
       "astro:config:done": ({ config, injectTypes }) => {
-        // generate dts of `virtual:astro-simple-feature-flags` by calling `injectTypes` twice to
-        // dynamically construct the dts content with generated dts file URL.
-
-        // 1: Inject `GetExport` type only to get the directory dts files placed.
-        const internalDtsURL = injectTypes({
-          content: compileVirtualModuleInternalDts(
-            _macroVirtualModuleInternalDts.code,
-          ),
-          filename: _macroVirtualModuleInternalDts.filename,
-        });
-        const dtsRootDir = dirname(fileURLToPath(internalDtsURL));
-
         const configRes = resolveFlagConfig(config.root, {
           configFileName,
         });
@@ -59,14 +45,12 @@ export const simpleFeatureFlags = (
           throw new AstroError(configRes.error.message);
         }
 
-        // 2: Calculate the path to the config module from the dts root directory.
         const configModulePathFromDts = relative(
-          dtsRootDir,
+          fileURLToPath(codeGenDir),
           fileURLToPath(configRes.configModuleId),
         );
 
         injectTypes({
-          // 3: Inject rest virtual module dts, which depends on internal dts URL.
           content: compileVirtualModuleDts(_macroVirtualModuleDts.code, {
             configModuleId: configModulePathFromDts,
           }),
