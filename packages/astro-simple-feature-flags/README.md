@@ -65,15 +65,9 @@ export default defineConfig({
   // Define the Vite modes for your environments.
   // You can add more modes as needed (e.g., 'staging', 'testing').
   //
-  // See [https://vite.dev/guide/env-and-mode.html#modes](https://vite.dev/guide/env-and-mode.html#modes) for detailed information about Vite modes.
+  // See https://vite.dev/guide/env-and-mode.html#modes for detailed information about Vite modes.
   viteMode: ['development', 'production'],
 });
-```
-
-Then run:
-
-```bash
-npx astro sync
 ```
 
 ### 4. Define Content Collection via API
@@ -89,6 +83,12 @@ export const collections = {
   // Your existing collections...
   ...defineFeatureFlagCollection(),
 };
+```
+
+Then run:
+
+```bash
+npx astro sync
 ```
 
 ### 5. Use Flags in Your Astro Components
