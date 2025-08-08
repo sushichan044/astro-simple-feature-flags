@@ -26,11 +26,3 @@ export const _macroVirtualModuleImpl = transformSync(
     "utf8",
   ),
 ).code;
-
-export const _macroVirtualModuleInternalDts = {
-  code: readFileSync(
-    new URL("./templates/internal.d.ts", import.meta.url),
-    "utf8",
-  ),
-  filename: "internal.d.ts",
-} as const;
