@@ -10,10 +10,25 @@ import {
 } from "./utils";
 
 describe("SSR", () => {
-  const tc: Array<{ expected: string; mode: AcceptableViteMode }> = [
-    { expected: "Current mode: development", mode: "development" },
-    { expected: "Current mode: test", mode: "test" },
-    { expected: "Current mode: production", mode: "production" },
+  const tc: Array<{ mode: AcceptableViteMode; shouldContain: string[] }> = [
+    {
+      mode: "development",
+      shouldContain: [
+        "Current mode: development",
+        "fooReleasedWithDefault: true",
+      ],
+    },
+    {
+      mode: "test",
+      shouldContain: ["Current mode: test", "fooReleasedWithDefault: true"],
+    },
+    {
+      mode: "production",
+      shouldContain: [
+        "Current mode: production",
+        "fooReleasedWithDefault: false",
+      ],
+    },
   ];
 
   it.each(withIndex(tc))("works in $mode mode", async (t) => {
@@ -27,6 +42,8 @@ describe("SSR", () => {
     const res = await server.fetch("/ssr");
     const html = await res.text();
 
-    expect(html).toContain(t.expected);
+    for (const expected of t.shouldContain) {
+      expect(html).toContain(expected);
+    }
   });
 });

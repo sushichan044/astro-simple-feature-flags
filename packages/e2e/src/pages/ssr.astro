@@ -3,6 +3,7 @@ import { queryFeatureFlag } from "virtual:astro-simple-feature-flags";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 const mode = await queryFeatureFlag("mode");
+const fooReleasedWithDefault = await queryFeatureFlag("fooReleasedWithDefault");
 
 export const prerender = false;
 ---
@@ -10,4 +11,5 @@ export const prerender = false;
 <BaseLayout>
     <h1>Hello World</h1>
     <p>Current mode: {mode}</p>
+    <p>fooReleasedWithDefault: {String(fooReleasedWithDefault)}</p>
 </BaseLayout>

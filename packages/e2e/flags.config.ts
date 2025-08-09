@@ -5,13 +5,13 @@ export default defineConfig({
   flag: {
     development: {
       barReleaseRate: 1,
-      fooReleased: true,
+      fooReleasedWithDefault: true,
       mode: "development",
     },
 
     test: {
       barReleaseRate: 0.5,
-      fooReleased: true,
+      fooReleasedWithDefault: true,
       mode: "test",
     },
 
@@ -21,7 +21,7 @@ export default defineConfig({
   },
   schema: z.object({
     barReleaseRate: z.number().min(0).max(1).optional().default(0),
-    fooReleased: z.boolean().optional().default(false),
+    fooReleasedWithDefault: z.boolean().optional().default(false),
     mode: z.enum(["development", "production", "test"]),
   }),
   viteMode: ["development", "production", "test"],
