@@ -11,7 +11,6 @@ import { styleText } from "node:util";
 
 import type { FlagResolutionResult } from "./config/resolve";
 import type { FeatureFlagCollectionName } from "./constant";
-import type { FeatureFlagIntegration } from "./types";
 
 import { bugs as pkgBugs } from "../package.json" with { type: "json" };
 import { resolveFlagConfig } from "./config/resolve";
@@ -30,11 +29,11 @@ export const defineFeatureFlagCollection = (): Record<
           // HACK: use private hook key to retrieve the config from integration.
           const integration = c.config.integrations.find(
             (i) => i.name === INTEGRATION_NAME,
-          ) as FeatureFlagIntegration | undefined;
+          );
 
           const configFileName =
             integration?.hooks["astro-simple-feature-flags:private:storage"]
-              .configFileName;
+              ?.configFileName;
 
           if (!isNonEmptyString(configFileName)) {
             throw new AstroError(
