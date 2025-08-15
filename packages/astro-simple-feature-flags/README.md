@@ -14,7 +14,6 @@
 - 🔒 **Type-safe** - Full TypeScript support with auto-generated types.
 - 🔄 **Hot-reload** - Flag changes trigger HMR in the dev server.
 - 📦 **Content Layer Powered** - Built on Astro 5's Content Layer API.
-  - Works in both SSG and SSR modes.
 - 🎯 **Simple API** - Query any flag with a single function call.
 
 ## 🚀 Getting Started
