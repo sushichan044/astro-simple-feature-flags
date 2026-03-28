@@ -12,12 +12,18 @@ import type {
 } from "./toolbar/shared";
 
 import { resolveFlagConfig } from "./config/resolve";
-import { UnsupportedFlagConfigError, updateFlagConfigFile } from "./config/update";
+import {
+  UnsupportedFlagConfigError,
+  updateFlagConfigFile,
+} from "./config/update";
 import { INTEGRATION_NAME, TOOLBAR_APP_ID } from "./constant";
 import { FlagNotFoundError } from "./errors";
 import { getFlagEditorSchemaMap } from "./toolbar/schema";
-import { TOOLBAR_FLAG_DATA_EVENT, TOOLBAR_FLAG_UPDATE_EVENT } from "./toolbar/shared";
-import { isEditableFlagValue } from "./toolbar/value";
+import {
+  TOOLBAR_FLAG_DATA_EVENT,
+  TOOLBAR_FLAG_UPDATE_EVENT,
+} from "./toolbar/shared";
+import { validateToolbarFlagDraft } from "./toolbar/update";
 import { compileVirtualModuleDts } from "./virtual-module";
 import { _macroVirtualModuleDts } from "./virtual-module/macro" with {
   type: "macro",
@@ -116,15 +122,21 @@ export const simpleFeatureFlags = (
             }
 
             const currentFlags = configModule.flag[payload.mode];
-            if (!currentFlags || !(payload.key in currentFlags)) {
-              throw new FlagNotFoundError(payload.key, payload.mode);
+            if (!currentFlags) {
+              throw new Error(
+                `Feature flags for Vite mode "${payload.mode}" were not found.`,
+              );
             }
 
-            if (!isEditableFlagValue(payload.value)) {
-              throw new Error("Toolbar updates only support JSON primitive values.");
-            }
+            const nextFlags = await validateToolbarFlagDraft(
+              configModule.schema,
+              payload.flags,
+            );
 
-            await updateFlagConfigFile(configFilePath, payload);
+            await updateFlagConfigFile(configFilePath, {
+              flags: nextFlags,
+              mode: payload.mode,
+            });
             await sendFlagData();
           } catch (error) {
             const message =

@@ -1,12 +1,11 @@
+import type { ASTNode, ProxifiedFunctionCall, ProxifiedObject } from "magicast";
+
 import { generateCode, parseModule } from "magicast";
 import { readFile, writeFile } from "node:fs/promises";
 
-type PrimitiveFlagValue = boolean | number | string | null;
-
 type UpdateFlagConfigSourceOptions = {
-  key: string;
+  flags: Record<string, unknown>;
   mode: string;
-  value: PrimitiveFlagValue;
 };
 
 export class UnsupportedFlagConfigError extends Error {
@@ -23,14 +22,11 @@ export const updateFlagConfigSource = (
   const mod = parseModule(source);
   const config = getConfigObject(mod.exports["default"]);
   const flagObject = getStaticObjectProperty(config.$ast, "flag", "flag");
-  const modeObject = getStaticObjectProperty(
+  getStaticObjectProperty(
     flagObject.value,
     options.mode,
     `flag.${options.mode}`,
   );
-  const targetProperty = getStaticProperty(modeObject.value, options.key);
-
-  assertPrimitiveLiteral(targetProperty.value.type, `flag.${options.mode}.${options.key}`);
 
   const flagConfig = config.flag;
   if (!isRecord(flagConfig)) {
@@ -46,7 +42,7 @@ export const updateFlagConfigSource = (
     );
   }
 
-  modeConfig[options.key] = options.value;
+  flagConfig[options.mode] = options.flags;
 
   return generateCode(mod).code;
 };
@@ -60,29 +56,12 @@ export const updateFlagConfigFile = async (
   await writeFile(filePath, updatedSource, "utf8");
 };
 
-type ObjectPropertyLike = {
-  computed?: boolean | null;
-  key: {
-    name?: string | null;
-    type: string;
-    value?: string | null;
-  };
-  type: string;
-  value: {
-    properties?: ObjectPropertyLike[];
-    type: string;
-  };
-};
-
-type ObjectExpressionLike = {
-  properties?: ObjectPropertyLike[];
-  type: string;
-};
-
-type ConfigObjectProxy = Record<string, unknown> & {
-  $ast: ObjectExpressionLike;
+type ConfigObjectProxy = ProxifiedObject<{
   flag?: Record<string, unknown>;
-};
+}>;
+
+type ObjectExpressionNode = Extract<ASTNode, { type: "ObjectExpression" }>;
+type ObjectPropertyNode = Extract<ASTNode, { type: "ObjectProperty" }>;
 
 const getConfigObject = (defaultExport: unknown): ConfigObjectProxy => {
   if (isFunctionCall(defaultExport)) {
@@ -106,10 +85,10 @@ const getConfigObject = (defaultExport: unknown): ConfigObjectProxy => {
 };
 
 const getStaticObjectProperty = (
-  objectExpression: ObjectExpressionLike,
+  objectExpression: ASTNode,
   key: string,
   path: string,
-): ObjectPropertyLike => {
+): ObjectPropertyNode => {
   const property = getStaticProperty(objectExpression, key);
   if (property.value.type !== "ObjectExpression") {
     throw new UnsupportedFlagConfigError(
@@ -121,30 +100,24 @@ const getStaticObjectProperty = (
 };
 
 const getStaticProperty = (
-  objectExpression: ObjectExpressionLike,
+  objectExpression: ASTNode,
   key: string,
-): ObjectPropertyLike => {
-  if (objectExpression.type !== "ObjectExpression") {
+): ObjectPropertyNode => {
+  if (!isObjectExpressionNode(objectExpression)) {
     throw new UnsupportedFlagConfigError(
       "Feature flag config must use a static object literal.",
     );
   }
 
-  const property = objectExpression.properties?.find((candidate) => {
-    if (candidate.type !== "ObjectProperty" || candidate.computed === true) {
-      return false;
-    }
+  const property = objectExpression.properties.find(
+    (candidate): candidate is ObjectPropertyNode => {
+      if (candidate.type !== "ObjectProperty" || candidate.computed === true) {
+        return false;
+      }
 
-    if (candidate.key.type === "Identifier") {
-      return candidate.key.name === key;
-    }
-
-    if (candidate.key.type === "StringLiteral") {
-      return candidate.key.value === key;
-    }
-
-    return false;
-  });
+      return hasStaticPropertyKey(candidate.key, key);
+    },
+  );
 
   if (!property) {
     throw new UnsupportedFlagConfigError(
@@ -155,33 +128,9 @@ const getStaticProperty = (
   return property;
 };
 
-const assertPrimitiveLiteral = (nodeType: string, path: string): void => {
-  if (
-    nodeType === "BooleanLiteral" ||
-    nodeType === "NullLiteral" ||
-    nodeType === "NumericLiteral" ||
-    nodeType === "StringLiteral"
-  ) {
-    return;
-  }
-
-  if (nodeType === "ArrayExpression" || nodeType === "ObjectExpression") {
-    throw new UnsupportedFlagConfigError(
-      `Feature flag config at "${path}" must be a JSON primitive literal, not an array or object.`,
-    );
-  }
-
-  throw new UnsupportedFlagConfigError(
-    `Feature flag config at "${path}" must be a JSON primitive literal.`,
-  );
-};
-
 const isFunctionCall = (
   value: unknown,
-): value is {
-  $args: [Record<string, unknown>];
-  $type: "function-call";
-} => {
+): value is ProxifiedFunctionCall<[Record<string, unknown>]> => {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -200,10 +149,31 @@ const isObjectExpressionProxy = (
   }
 
   try {
-    return (value as ConfigObjectProxy).$ast.type === "ObjectExpression";
+    return isObjectExpressionNode((value as ConfigObjectProxy).$ast);
   } catch {
     return false;
   }
+};
+
+const isObjectExpressionNode = (
+  value: ASTNode,
+): value is ObjectExpressionNode => {
+  return value.type === "ObjectExpression";
+};
+
+const hasStaticPropertyKey = (
+  keyNode: ObjectPropertyNode["key"],
+  key: string,
+): boolean => {
+  if (keyNode.type === "Identifier") {
+    return keyNode.name === key;
+  }
+
+  if (keyNode.type === "StringLiteral") {
+    return keyNode.value === key;
+  }
+
+  return false;
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {

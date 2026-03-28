@@ -1,5 +1,4 @@
 import type { FlagEditorSchema } from "./schema";
-import type { EditableFlagValue } from "./value";
 
 import { TOOLBAR_APP_ID } from "../constant";
 
@@ -20,9 +19,8 @@ export type FlagDataError = {
 export type FlagDataPayload = FlagDataError | FlagDataSuccess;
 
 export type FlagUpdateRequest = {
-  key: string;
+  flags: Record<string, unknown>;
   mode: string;
-  value: EditableFlagValue;
 };
 
 export const TOOLBAR_FLAG_DATA_EVENT = `${TOOLBAR_APP_ID}:flag-data` as const;

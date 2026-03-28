@@ -196,6 +196,9 @@ See `.astro/integrations/astro-simple-feature-flags/flags.d.ts` for the generate
 The Astro Dev Toolbar app can edit flag values directly in `flags.config.*` during development.
 
 - Editable values are limited to JSON primitives: `string`, `number`, `boolean`, and `null`.
+- Primitive fields are edited as a draft and saved together with the `Update` button.
+- Validation runs against the full mode flag object before the config file is rewritten.
+- Successful toolbar saves write back the validated input object, not the schema output, so `transform()` schemas remain type-safe in `flags.config.*`.
 - The editor only supports static `defineConfig({ flag: ... })` object literals.
 - Flags defined through variables, spreads, computed expressions, arrays, or nested objects remain read-only.
 
