@@ -1,5 +1,12 @@
 # astro-simple-feature-flags
 
+## 2.0.1
+### Patch Changes
+
+
+
+- [`28528cf`](https://github.com/sushichan044/astro-simple-feature-flags/commit/28528cfc036321fca9b48fe5cfa1dbbcad798b49) Thanks [@sushichan044](https://github.com/sushichan044)! - No significant changes
+
 ## 2.0.0
 ### Major Changes
 
