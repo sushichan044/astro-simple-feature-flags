@@ -49,16 +49,16 @@
       "import": "./dist/content-layer.mjs"
     },
     "./errors": {
-      "types": "./dist/errors.d.ts",
-      "import": "./dist/errors.js"
+      "types": "./dist/errors.d.mts",
+      "import": "./dist/errors.mjs"
     },
     "./internal": {
       "types": "./dist/internal/index.d.mts",
       "import": "./dist/internal/index.mjs"
     },
     "./toolbar/app": {
-      "types": "./dist/toolbar/app.d.ts",
-      "import": "./dist/toolbar/app.js"
+      "types": "./dist/toolbar/app.d.mts",
+      "import": "./dist/toolbar/app.mjs"
     }
   },
   "engines": {
@@ -70,8 +70,8 @@
     }
   },
   "peerDependencies": {
-    "astro": "^5.0.0",
-    "vite": "^6.0.1"
+    "astro": "^6.0.0",
+    "vite": "^7.0.0"
   },
   "scripts": {
     "lint": "eslint --max-warnings 0 --fix .",
@@ -100,7 +100,7 @@
     "typescript-eslint": "catalog:eslint",
     "unplugin-macros": "0.19.1",
     "unplugin-unused": "catalog:build",
-    "vite": "^8.0.3",
+    "vite": "^7.3.1",
     "vitest": "catalog:test"
   }
 }
