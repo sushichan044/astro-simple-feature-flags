@@ -55,6 +55,10 @@
     "./internal": {
       "types": "./dist/internal/index.d.ts",
       "import": "./dist/internal/index.js"
+    },
+    "./toolbar/app": {
+      "types": "./dist/toolbar/app.d.ts",
+      "import": "./dist/toolbar/app.js"
     }
   },
   "engines": {

@@ -11,6 +11,7 @@ export default defineConfig({
     "src/content-layer.ts",
     "src/errors.ts",
     "src/internal/index.ts",
+    "src/toolbar/app.ts",
   ],
   format: "esm",
   minify: "dce-only",
@@ -18,7 +19,9 @@ export default defineConfig({
   treeshake: true,
 
   external: [
+    "astro", // Astro's runtime APIs
     /^astro:/, // Marking Astro's virtual modules as external
+    "vite", // Vite's runtime APIs
   ],
 
   // inherit from vite
