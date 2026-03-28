@@ -5,11 +5,19 @@ import { relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { FeatureFlagResolveOptions } from "./config/resolve";
-import type { FlagDataError, FlagDataSuccess } from "./toolbar/shared";
+import type {
+  FlagDataError,
+  FlagDataSuccess,
+  FlagUpdateRequest,
+} from "./toolbar/shared";
 
 import { resolveFlagConfig } from "./config/resolve";
+import { UnsupportedFlagConfigError, updateFlagConfigFile } from "./config/update";
 import { INTEGRATION_NAME, TOOLBAR_APP_ID } from "./constant";
-import { TOOLBAR_FLAG_DATA_EVENT } from "./toolbar/shared";
+import { FlagNotFoundError } from "./errors";
+import { getFlagEditorSchemaMap } from "./toolbar/schema";
+import { TOOLBAR_FLAG_DATA_EVENT, TOOLBAR_FLAG_UPDATE_EVENT } from "./toolbar/shared";
+import { isEditableFlagValue } from "./toolbar/value";
 import { compileVirtualModuleDts } from "./virtual-module";
 import { _macroVirtualModuleDts } from "./virtual-module/macro" with {
   type: "macro",
@@ -82,6 +90,7 @@ export const simpleFeatureFlags = (
 
           toolbar.send<FlagDataSuccess>(TOOLBAR_FLAG_DATA_EVENT, {
             configFile,
+            editors: getFlagEditorSchemaMap(configModule.schema),
             flags: configModule.flag[mode] ?? {},
             mode,
           });
@@ -92,6 +101,49 @@ export const simpleFeatureFlags = (
         });
 
         const configFilePath = fileURLToPath(flagResolution.configModuleId);
+
+        const handleFlagUpdate = async (payload: FlagUpdateRequest) => {
+          try {
+            if (payload.mode !== server.config.mode) {
+              throw new Error(
+                `Toolbar updates are only supported for the active Vite mode "${server.config.mode}".`,
+              );
+            }
+
+            const configModule = await flagResolution.importConfigModule();
+            if (!configModule) {
+              throw new Error("Failed to load feature flag config.");
+            }
+
+            const currentFlags = configModule.flag[payload.mode];
+            if (!currentFlags || !(payload.key in currentFlags)) {
+              throw new FlagNotFoundError(payload.key, payload.mode);
+            }
+
+            if (!isEditableFlagValue(payload.value)) {
+              throw new Error("Toolbar updates only support JSON primitive values.");
+            }
+
+            await updateFlagConfigFile(configFilePath, payload);
+            await sendFlagData();
+          } catch (error) {
+            const message =
+              error instanceof UnsupportedFlagConfigError ||
+              error instanceof FlagNotFoundError ||
+              error instanceof Error
+                ? error.message
+                : "Failed to update feature flag config.";
+
+            toolbar.send<FlagDataError>(TOOLBAR_FLAG_DATA_EVENT, {
+              error: message,
+            });
+          }
+        };
+
+        toolbar.on<FlagUpdateRequest>(TOOLBAR_FLAG_UPDATE_EVENT, (payload) => {
+          void handleFlagUpdate(payload);
+        });
+
         server.watcher.on("change", (changedPath) => {
           if (changedPath === configFilePath) {
             void sendFlagData();

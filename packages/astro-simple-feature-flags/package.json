@@ -83,7 +83,8 @@
     "build": "tsdown"
   },
   "dependencies": {
-    "jiti": "^2.6.1"
+    "jiti": "^2.6.1",
+    "magicast": "^0.5.2"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:build",

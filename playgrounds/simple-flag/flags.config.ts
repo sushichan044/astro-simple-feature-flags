@@ -4,7 +4,7 @@ import { z } from "astro/zod";
 export default defineConfig({
   flag: {
     development: {
-      barReleaseRate: 1,
+      barReleaseRate: 0.5,
       fooReleased: true,
     },
 

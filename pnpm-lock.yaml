@@ -88,6 +88,9 @@ importers:
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
+      magicast:
+        specifier: ^0.5.2
+        version: 0.5.2
     devDependencies:
       '@arethetypeswrong/core':
         specifier: catalog:build

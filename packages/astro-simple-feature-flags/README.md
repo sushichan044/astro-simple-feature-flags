@@ -191,6 +191,14 @@ See `.astro/integrations/astro-simple-feature-flags/flags.d.ts` for the generate
 > [!WARNING]
 > You must run `astro sync` after you changed the value of `configFileName` in your integration config.
 
+## 🛠 Dev Toolbar Editing
+
+The Astro Dev Toolbar app can edit flag values directly in `flags.config.*` during development.
+
+- Editable values are limited to JSON primitives: `string`, `number`, `boolean`, and `null`.
+- The editor only supports static `defineConfig({ flag: ... })` object literals.
+- Flags defined through variables, spreads, computed expressions, arrays, or nested objects remain read-only.
+
 ## 🤝 Contributing & Resources
 
 ### Community
