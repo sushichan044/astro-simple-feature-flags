@@ -5,6 +5,7 @@ import { relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { FeatureFlagResolveOptions } from "./config/resolve";
+import type { FlagDataError, FlagDataSuccess } from "./toolbar/shared";
 
 import { resolveFlagConfig } from "./config/resolve";
 import { INTEGRATION_NAME, TOOLBAR_APP_ID } from "./constant";
@@ -54,11 +55,23 @@ export const simpleFeatureFlags = (
         const flagResolution = resolveFlagConfig(configRoot, {
           configFileName,
         });
-        if (!flagResolution.success) return;
+        if (!flagResolution.success) {
+          toolbar.onAppInitialized(TOOLBAR_APP_ID, () => {
+            toolbar.send<FlagDataError>(TOOLBAR_FLAG_DATA_EVENT, {
+              error: flagResolution.error.message,
+            });
+          });
+          return;
+        }
 
         const sendFlagData = async () => {
           const configModule = await flagResolution.importConfigModule();
-          if (!configModule) return;
+          if (!configModule) {
+            toolbar.send<FlagDataError>(TOOLBAR_FLAG_DATA_EVENT, {
+              error: "Failed to load feature flag config.",
+            });
+            return;
+          }
 
           const mode = server.config.mode;
           const configFile = relative(
@@ -66,7 +79,7 @@ export const simpleFeatureFlags = (
             fileURLToPath(flagResolution.configModuleId),
           );
 
-          toolbar.send(TOOLBAR_FLAG_DATA_EVENT, {
+          toolbar.send<FlagDataSuccess>(TOOLBAR_FLAG_DATA_EVENT, {
             configFile,
             flags: configModule.flag[mode] ?? {},
             mode,

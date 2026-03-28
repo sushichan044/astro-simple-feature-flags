@@ -2,7 +2,7 @@ import type { DevToolbarApp } from "astro";
 
 import { defineToolbarApp } from "astro/toolbar";
 
-import type { FlagDataPayload } from "./shared";
+import type { FlagDataPayload, FlagDataSuccess } from "./shared";
 
 import { TOOLBAR_FLAG_DATA_EVENT } from "./shared";
 
@@ -21,14 +21,25 @@ const toolbarApp: DevToolbarApp = defineToolbarApp({
 
     server.on<FlagDataPayload>(TOOLBAR_FLAG_DATA_EVENT, (data) => {
       toolbarWindow.replaceChildren();
-      renderContent(toolbarWindow, data);
+      if ("error" in data) {
+        renderError(toolbarWindow, data.error);
+      } else {
+        renderContent(toolbarWindow, data);
+      }
     });
   },
 });
 
 export default toolbarApp;
 
-function renderContent(container: HTMLElement, data: FlagDataPayload): void {
+function renderError(container: HTMLElement, message: string): void {
+  const el = document.createElement("p");
+  el.style.cssText = "color: #f87171; margin: 0; font-size: 16px;";
+  el.textContent = message;
+  container.appendChild(el);
+}
+
+function renderContent(container: HTMLElement, data: FlagDataSuccess): void {
   const header = document.createElement("div");
   header.style.cssText =
     "margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #333;";
@@ -56,24 +67,19 @@ function renderContent(container: HTMLElement, data: FlagDataPayload): void {
 
   const list = document.createElement("dl");
   list.style.cssText =
-    "display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0;";
+    "display: grid; grid-template-columns: 1fr auto; row-gap: 8px; column-gap: 24px; margin: 0; padding: 0; align-items: center;";
 
   for (const [key, value] of entries) {
-    const row = document.createElement("div");
-    row.style.cssText =
-      "display: flex; justify-content: space-between; align-items: center; gap: 24px;";
-
     const keyEl = document.createElement("dt");
     keyEl.style.cssText = "font-size: 17px; font-family: monospace;";
     keyEl.textContent = key;
 
     const valueEl = document.createElement("dd");
-    valueEl.style.cssText = "margin: 0;";
+    valueEl.style.cssText = "margin: 0; justify-self: end;";
     valueEl.appendChild(renderValue(value));
 
-    row.appendChild(keyEl);
-    row.appendChild(valueEl);
-    list.appendChild(row);
+    list.appendChild(keyEl);
+    list.appendChild(valueEl);
   }
 
   container.appendChild(list);
