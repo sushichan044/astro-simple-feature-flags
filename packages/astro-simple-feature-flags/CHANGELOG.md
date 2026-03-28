@@ -1,5 +1,14 @@
 # astro-simple-feature-flags
 
+## 2.0.0
+### Major Changes
+
+
+
+- [#36](https://github.com/sushichan044/astro-simple-feature-flags/pull/36) [`949f836`](https://github.com/sushichan044/astro-simple-feature-flags/commit/949f836b994df981c376776ce946c8793bca09e1) Thanks [@sushichan044](https://github.com/sushichan044)! - feat!: support Astro v6
+  
+  You must migrate to Astro v6 to use this version of astro-simple-feature-flags. Please refer to the [Astro v6 migration guide](https://docs.astro.build/en/guides/upgrade-to/v6) for more details on how to upgrade your Astro project.
+
 ## 1.0.0
 ### Major Changes
 
