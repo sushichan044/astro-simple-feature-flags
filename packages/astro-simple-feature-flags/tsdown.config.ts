@@ -11,6 +11,7 @@ export default defineConfig({
     "src/content-layer.ts",
     "src/errors.ts",
     "src/internal/index.ts",
+    "src/toolbar/app.ts",
   ],
   format: "esm",
   minify: "dce-only",
