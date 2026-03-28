@@ -4,7 +4,7 @@ export class FlagNotFoundError extends Error {
 
   constructor(key: string, mode: string) {
     super(
-      `Feature flag with key: ${key} is not found in the data for vite mode: ${mode}.`,
+      `Feature flag with key "${key}" was not found in the data for Vite mode "${mode}".`,
     );
     this.name = "FlagNotFoundError";
     this.key = key;
