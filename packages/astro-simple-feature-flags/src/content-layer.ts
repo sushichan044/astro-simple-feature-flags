@@ -2,7 +2,6 @@ import type { BaseSchema, CollectionConfig } from "astro/content/config";
 import type { LoaderContext } from "astro/loaders";
 
 import { AstroError } from "astro/errors";
-import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
 import { relative } from "node:path";
 import process from "node:process";
@@ -17,6 +16,7 @@ import { resolveFlagConfig } from "./config/resolve";
 import { INTEGRATION_NAME } from "./constant";
 import { isNonEmptyString } from "./utils/string";
 import { getViteMode } from "./vite";
+import { isZodObjectSchema } from "./zod";
 
 export const defineFeatureFlagCollection = (): Record<
   FeatureFlagCollectionName,
@@ -166,8 +166,3 @@ const doLoadFeatureFlag = async (options: LoadFeatureFlagOptions) => {
     }),
   );
 };
-
-const isZodObjectSchema = (
-  input: unknown,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): input is z.ZodObject<any, any, any> => input instanceof z.ZodObject;

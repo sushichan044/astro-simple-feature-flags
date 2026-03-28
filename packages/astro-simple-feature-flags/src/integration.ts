@@ -43,7 +43,7 @@ export const simpleFeatureFlags = (
         });
         addDevToolbarApp({
           entrypoint: fileURLToPath(
-            new URL("./toolbar/app.js", import.meta.url),
+            new URL("./toolbar/app.mjs", import.meta.url),
           ),
           // fa7-solid:flag
           icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="currentColor" d="M160 96c0-17.7-14.3-32-32-32S96 78.3 96 96v448c0 17.7 14.3 32 32 32s32-14.3 32-32V422.4l62.7-18.8c41.9-12.6 87.1-8.7 126.2 10.9c42.7 21.4 92.5 24 137.2 7.2l37.1-13.9c12.5-4.7 20.8-16.6 20.8-30V130.1c0-23-24.2-38-44.8-27.7l-11.8 5.9c-44.9 22.5-97.8 22.5-142.8 0c-36.4-18.2-78.3-21.8-117.2-10.1L160 118.4z"/></svg>',

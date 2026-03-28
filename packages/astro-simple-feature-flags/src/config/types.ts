@@ -1,6 +1,7 @@
-import type { AnyZodObject, input } from "astro/zod";
+import type { input } from "astro/zod";
 
 import type { ViteModeType } from "../vite";
+import type { AnyZodObject } from "../zod";
 
 export type FeatureFlagConfig<
   TFlagSchema extends FlagSchemaLike = FlagSchemaLike,

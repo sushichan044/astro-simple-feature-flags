@@ -52,8 +52,8 @@ function renderContent(container: HTMLElement, data: FlagDataSuccess): void {
     "margin: 0; font-size: 14px; color: #666; word-break: break-all;";
   configEl.textContent = `Config: ${data.configFile}`;
 
-  header.appendChild(configEl);
   header.appendChild(modeEl);
+  header.appendChild(configEl);
   container.appendChild(header);
 
   const entries = Object.entries(data.flags);

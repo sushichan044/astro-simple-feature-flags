@@ -13,22 +13,25 @@ export default defineConfig({
     "src/internal/index.ts",
     "src/toolbar/app.ts",
   ],
+  fixedExtension: true,
   format: "esm",
   minify: "dce-only",
   nodeProtocol: true,
   treeshake: true,
 
-  external: [
-    "astro", // Astro's runtime APIs
-    /^astro:/, // Marking Astro's virtual modules as external
-    "vite", // Vite's runtime APIs
-  ],
+  deps: {
+    neverBundle: [
+      "astro", // Astro's runtime APIs
+      /^astro:/, // Marking Astro's virtual modules as external
+      "vite", // Vite's runtime APIs
+    ],
+  },
 
   // inherit from vite
   fromVite: true,
 
   // artifact validations
-  attw: true,
+  attw: { profile: "esm-only" },
   publint: true,
   unused: true,
 });
