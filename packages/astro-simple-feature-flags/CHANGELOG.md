@@ -1,5 +1,24 @@
 # astro-simple-feature-flags
 
+## 1.0.0
+### Major Changes
+
+
+
+- [#31](https://github.com/sushichan044/astro-simple-feature-flags/pull/31) [`a043c84`](https://github.com/sushichan044/astro-simple-feature-flags/commit/a043c84cfe3ee26ff8f2823e565eaa99e79db73e) Thanks [@sushichan044](https://github.com/sushichan044)! - This package is now considered as stable.
+  
+  This is the last version that supports Astro v5 and earlier.
+
+### Minor Changes
+
+
+
+- [#33](https://github.com/sushichan044/astro-simple-feature-flags/pull/33) [`f694cb0`](https://github.com/sushichan044/astro-simple-feature-flags/commit/f694cb0ff49abd69005ce7263c8e33e605080879) Thanks [@sushichan044](https://github.com/sushichan044)! - feat: throw error if queried non-existent flag
+
+
+
+- [#35](https://github.com/sushichan044/astro-simple-feature-flags/pull/35) [`4e5a47f`](https://github.com/sushichan044/astro-simple-feature-flags/commit/4e5a47fc786fbd871f730f690ea7379af5ef9f69) Thanks [@sushichan044](https://github.com/sushichan044)! - feat: add DevToolsBar app to check current flags
+
 ## 0.1.1
 ### Patch Changes
 
