@@ -2,8 +2,6 @@
 
 [![npm version](https://badge.fury.io/js/astro-simple-feature-flags.svg)](https://badge.fury.io/js/astro-simple-feature-flags)
 [![Node.js Version](https://img.shields.io/node/v/astro-simple-feature-flags.svg)](https://nodejs.org/)
-[![Astro](https://img.shields.io/badge/astro-5.0+-orange.svg)](https://astro.build/)
-[![TypeScript](https://img.shields.io/badge/typescript-ready-blue.svg)](https://www.typescriptlang.org/)
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 > A simple, type-safe feature flag integration for Astro, powered by the Content Layer API.
@@ -28,8 +26,8 @@ npx astro add astro-simple-feature-flags
 
 ### 2. Add Integration
 
-```js
-// astro.config.mjs
+```ts
+// astro.config.ts
 import simpleFeatureFlags from 'astro-simple-feature-flags';
 import { defineConfig } from 'astro/config';
 
