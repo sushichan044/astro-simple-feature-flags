@@ -24,9 +24,10 @@ export const createQueryFeatureFlag =
       return;
     }
 
-    if (!Object.hasOwn(flagObject.data, key)) {
+    const data = flagObject.data;
+    if (data == null || typeof data !== "object" || !Object.hasOwn(data, key)) {
       throw new FlagNotFoundError(key, currentMode);
     }
 
-    return flagObject.data[key];
+    return data[key];
   };
