@@ -20,6 +20,7 @@ export const simpleFeatureFlags = (
 ): AstroIntegration => {
   const { configFileName = "flags" } = options;
   let codeGenDir: URL;
+  let configRoot: URL;
 
   return {
     hooks: {
@@ -50,32 +51,43 @@ export const simpleFeatureFlags = (
       },
 
       "astro:server:setup": ({ server, toolbar }) => {
+        const flagResolution = resolveFlagConfig(configRoot, {
+          configFileName,
+        });
+        if (!flagResolution.success) return;
+
+        const sendFlagData = async () => {
+          const configModule = await flagResolution.importConfigModule();
+          if (!configModule) return;
+
+          const mode = server.config.mode;
+          const configFile = relative(
+            fileURLToPath(configRoot),
+            fileURLToPath(flagResolution.configModuleId),
+          );
+
+          toolbar.send(TOOLBAR_FLAG_DATA_EVENT, {
+            configFile,
+            flags: configModule.flag[mode] ?? {},
+            mode,
+          });
+        };
+
         toolbar.onAppInitialized(TOOLBAR_APP_ID, () => {
-          void (async () => {
-            const root = new URL(`file://${server.config.root}/`);
-            const flagResolution = resolveFlagConfig(root, { configFileName });
-            if (!flagResolution.success) return;
+          void sendFlagData();
+        });
 
-            const configModule = await flagResolution.importConfigModule();
-            if (!configModule) return;
-
-            const mode = server.config.mode;
-
-            const configFile = relative(
-              fileURLToPath(root),
-              fileURLToPath(flagResolution.configModuleId),
-            );
-
-            toolbar.send(TOOLBAR_FLAG_DATA_EVENT, {
-              configFile: configFile,
-              flags: configModule.flag[mode] ?? {},
-              mode,
-            });
-          })();
+        const configFilePath = fileURLToPath(flagResolution.configModuleId);
+        server.watcher.on("change", (changedPath) => {
+          if (changedPath === configFilePath) {
+            void sendFlagData();
+          }
         });
       },
 
       "astro:config:done": ({ config, injectTypes }) => {
+        configRoot = config.root;
+
         const configRes = resolveFlagConfig(config.root, {
           configFileName,
         });
