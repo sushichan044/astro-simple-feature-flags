@@ -18,6 +18,7 @@ export const withIndex = <T>(arr: T[]): Array<T & { idx: number }> => {
 };
 
 export const BASE_PORTS = {
+  BEHAVIOR: 5000,
   SSG: 3000,
   SSR: 4000,
 } as const;

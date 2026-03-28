@@ -7,7 +7,7 @@ describe("SSG", () => {
     await using tmpDir = await createTempDir();
     await using server = await createPreviewServer({
       mode: "development",
-      port: BASE_PORTS.SSG,
+      port: BASE_PORTS.BEHAVIOR,
       tmpDir: tmpDir.path,
     });
 
