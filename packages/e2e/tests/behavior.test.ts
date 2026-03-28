@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { BASE_PORTS, createPreviewServer, createTempDir } from "./utils";
 
-describe("SSG", () => {
+describe("behavior", () => {
   it("should throw error when querying non-existent flag", async () => {
     await using tmpDir = await createTempDir();
     await using server = await createPreviewServer({
