@@ -48,6 +48,10 @@
       "types": "./dist/content-layer.d.ts",
       "import": "./dist/content-layer.js"
     },
+    "./errors": {
+      "types": "./dist/errors.d.ts",
+      "import": "./dist/errors.js"
+    },
     "./internal": {
       "types": "./dist/internal/index.d.ts",
       "import": "./dist/internal/index.js"

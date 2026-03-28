@@ -9,6 +9,7 @@ export default defineConfig({
     "src/index.ts",
     "src/config/index.ts",
     "src/content-layer.ts",
+    "src/errors.ts",
     "src/internal/index.ts",
   ],
   format: "esm",
