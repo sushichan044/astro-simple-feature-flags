@@ -1,5 +1,6 @@
 import type { createGetEntry } from "astro/content/runtime";
 
+import { FlagNotFoundError } from "../errors";
 import { getViteMode } from "../vite";
 
 type GetEntryFn = ReturnType<typeof createGetEntry>;
@@ -23,5 +24,9 @@ export const createQueryFeatureFlag =
       return;
     }
 
-    return flagObject.data?.[key];
+    if (!Object.hasOwn(flagObject.data, key)) {
+      throw new FlagNotFoundError(key, currentMode);
+    }
+
+    return flagObject.data[key];
   };
