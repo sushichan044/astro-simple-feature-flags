@@ -19,7 +19,9 @@ export default defineConfig({
   treeshake: true,
 
   external: [
+    "astro", // Astro's runtime APIs
     /^astro:/, // Marking Astro's virtual modules as external
+    "vite", // Vite's runtime APIs
   ],
 
   // inherit from vite
