@@ -75,7 +75,7 @@ export default defineConfig({
 > If you already defined a collection named `astro-simple-feature-flags`, this integration will not work.
 
 ```ts
-// src/content/config.ts
+// src/content.config.ts
 import { defineFeatureFlagCollection } from "astro-simple-feature-flags/content-layer";
 
 export const collections = {
