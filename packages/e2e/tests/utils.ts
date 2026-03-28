@@ -6,7 +6,7 @@ import type { FeatureFlagConfig } from "virtual:astro-simple-feature-flags";
 
 import { build, preview } from "astro";
 import { existsSync } from "node:fs";
-import { mkdtemp, rmdir } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { vi } from "vitest";
@@ -30,7 +30,7 @@ export const createTempDir = async (): Promise<
 
   const close = async () => {
     if (existsSync(path)) {
-      await rmdir(path, { recursive: true });
+      await rm(path, { force: true, recursive: true });
     }
   };
 
