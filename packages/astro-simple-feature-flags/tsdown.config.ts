@@ -11,7 +11,7 @@ export default defineConfig({
     "src/content-layer.ts",
     "src/errors.ts",
     "src/internal/index.ts",
-    "src/toolbar/app.tsx",
+    "src/toolbar/App.tsx",
   ],
   fixedExtension: true,
   format: "esm",

@@ -57,10 +57,6 @@
     "./internal": {
       "types": "./dist/internal/index.d.mts",
       "import": "./dist/internal/index.mjs"
-    },
-    "./toolbar/app": {
-      "types": "./dist/toolbar/app.d.mts",
-      "import": "./dist/toolbar/app.mjs"
     }
   },
   "engines": {

@@ -347,7 +347,19 @@ function EditableField(props: {
               ? "0.0"
               : "Enter value"
         }
-        style={baseControlStyles()}
+        style={{
+          background: "rgba(255, 255, 255, 0.02)",
+          border: "1px solid rgba(255, 255, 255, 0.12)",
+          borderRadius: "10px",
+          boxSizing: "border-box",
+          caretColor: "rgba(255, 255, 255, 0.92)",
+          color: "rgba(255, 255, 255, 0.92)",
+          display: "block",
+          fontSize: "13px",
+          minWidth: 0,
+          padding: "12px 14px",
+          width: "100%",
+        }}
         type="text"
         value={inputValue}
       />
@@ -499,22 +511,6 @@ function ActionBar(props: {
       </ToolbarButton>
     </div>
   );
-}
-
-function baseControlStyles(): JSX.CSSProperties {
-  return {
-    background: "rgba(255, 255, 255, 0.02)",
-    border: "1px solid rgba(255, 255, 255, 0.12)",
-    borderRadius: "10px",
-    boxSizing: "border-box",
-    caretColor: "rgba(255, 255, 255, 0.92)",
-    color: "rgba(255, 255, 255, 0.92)",
-    display: "block",
-    fontSize: "13px",
-    minWidth: 0,
-    padding: "12px 14px",
-    width: "100%",
-  };
 }
 
 function getEditorLabel(editorSchema: FlagEditorSchema): string {
