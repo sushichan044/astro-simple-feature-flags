@@ -1,5 +1,4 @@
 import type { DevToolbarApp, ToolbarServerHelpers } from "astro";
-import type { JSX } from "preact";
 
 import { defineToolbarApp } from "astro/toolbar";
 import { render } from "preact";
@@ -296,7 +295,7 @@ function EditableField(props: {
   isSaving: boolean;
   onChange: (key: string, value: FormValue) => void;
   schema: EditableEditorSchema;
-}): JSX.Element {
+}) {
   if (props.schema.kind === "boolean") {
     return (
       <BooleanField
@@ -395,7 +394,7 @@ function BooleanField(props: {
   nullable: boolean;
   onChange: (key: string, value: FormValue) => void;
   value: boolean | null;
-}): JSX.Element {
+}) {
   return (
     <div style={{ display: "grid", gap: "10px" }}>
       <p
@@ -439,7 +438,7 @@ function BooleanField(props: {
   );
 }
 
-function ReadonlyValue({ value }: { value: unknown }): JSX.Element {
+function ReadonlyValue({ value }: { value: unknown }) {
   return (
     <pre
       style={{
@@ -467,7 +466,7 @@ function ActionBar(props: {
   onError: (message: string) => void;
   onReset: () => void;
   onSave: (payload: FlagUpdateRequest) => void;
-}): JSX.Element {
+}) {
   return (
     <div
       style={{
