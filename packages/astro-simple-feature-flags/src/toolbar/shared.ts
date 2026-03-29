@@ -23,8 +23,25 @@ export type FlagUpdateRequest = {
   mode: string;
 };
 
+export type FlagFieldErrors = Record<string, string>;
+
+export type FlagUpdateResult =
+  | {
+      fieldErrors: FlagFieldErrors;
+      ok: false;
+    }
+  | {
+      formError: string;
+      ok: false;
+    }
+  | {
+      ok: true;
+    };
+
 export const TOOLBAR_FLAG_REQUEST_EVENT =
   `${TOOLBAR_APP_ID}:flag-request` as const;
 export const TOOLBAR_FLAG_DATA_EVENT = `${TOOLBAR_APP_ID}:flag-data` as const;
 export const TOOLBAR_FLAG_UPDATE_EVENT =
   `${TOOLBAR_APP_ID}:flag-update` as const;
+export const TOOLBAR_FLAG_UPDATE_RESULT_EVENT =
+  `${TOOLBAR_APP_ID}:flag-update-result` as const;

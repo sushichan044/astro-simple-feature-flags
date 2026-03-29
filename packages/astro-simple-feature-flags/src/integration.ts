@@ -9,6 +9,7 @@ import type {
   FlagDataError,
   FlagDataSuccess,
   FlagUpdateRequest,
+  FlagUpdateResult,
 } from "./toolbar/shared";
 
 import { resolveFlagConfig } from "./config/resolve";
@@ -23,8 +24,12 @@ import {
   TOOLBAR_FLAG_DATA_EVENT,
   TOOLBAR_FLAG_REQUEST_EVENT,
   TOOLBAR_FLAG_UPDATE_EVENT,
+  TOOLBAR_FLAG_UPDATE_RESULT_EVENT,
 } from "./toolbar/shared";
-import { validateToolbarFlagDraft } from "./toolbar/update";
+import {
+  InvalidToolbarPayloadError,
+  validateToolbarFlagDraft,
+} from "./toolbar/update";
 import { compileVirtualModuleDts } from "./virtual-module";
 import { _macroVirtualModuleDts } from "./virtual-module/macro" with {
   type: "macro",
@@ -142,17 +147,29 @@ export const simpleFeatureFlags = (
               flags: nextFlags,
               mode: payload.mode,
             });
+            toolbar.send<FlagUpdateResult>(TOOLBAR_FLAG_UPDATE_RESULT_EVENT, {
+              ok: true,
+            });
             await sendFlagData();
           } catch (error) {
-            const message =
+            if (error instanceof InvalidToolbarPayloadError) {
+              toolbar.send<FlagUpdateResult>(TOOLBAR_FLAG_UPDATE_RESULT_EVENT, {
+                fieldErrors: error.fieldErrors,
+                ok: false,
+              });
+              return;
+            }
+
+            const formError =
               error instanceof UnsupportedFlagConfigError ||
               error instanceof FlagNotFoundError ||
               error instanceof Error
                 ? error.message
                 : "Failed to update feature flag config.";
 
-            toolbar.send<FlagDataError>(TOOLBAR_FLAG_DATA_EVENT, {
-              error: message,
+            toolbar.send<FlagUpdateResult>(TOOLBAR_FLAG_UPDATE_RESULT_EVENT, {
+              formError,
+              ok: false,
             });
           }
         };

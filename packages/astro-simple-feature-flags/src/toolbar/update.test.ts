@@ -1,7 +1,10 @@
 import { z } from "astro/zod";
 import { describe, expect, it } from "vitest";
 
-import { InvalidToolbarPayloadError, validateToolbarFlagDraft } from "./update";
+import {
+  InvalidToolbarPayloadError,
+  validateToolbarFlagDraft,
+} from "./update";
 
 describe("validateToolbarFlagDraft", () => {
   it("returns the original input object when schema validation succeeds", async () => {
@@ -31,6 +34,27 @@ describe("validateToolbarFlagDraft", () => {
         rolloutRate: 2,
       }),
     ).rejects.toThrow(InvalidToolbarPayloadError);
+  });
+
+  it("exposes field errors when schema validation fails", async () => {
+    const schema = z.object({
+      rolloutRate: z.number().min(0).max(1),
+      variant: z.string().min(1),
+    });
+
+    try {
+      await validateToolbarFlagDraft(schema, {
+        rolloutRate: 2,
+        variant: "",
+      });
+      throw new Error("Expected validateToolbarFlagDraft to throw.");
+    } catch (error) {
+      expect(error).toBeInstanceOf(InvalidToolbarPayloadError);
+
+      const validationError = error as InvalidToolbarPayloadError;
+      expect(validationError.fieldErrors["rolloutRate"]).toBeTypeOf("string");
+      expect(validationError.fieldErrors["variant"]).toBeTypeOf("string");
+    }
   });
 
   it("rejects non-record payloads before schema validation", async () => {

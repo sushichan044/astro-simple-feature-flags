@@ -9,6 +9,7 @@ import type {
   FlagDataPayload,
   FlagDataSuccess,
   FlagUpdateRequest,
+  FlagUpdateResult,
 } from "./shared";
 
 import {
@@ -21,12 +22,13 @@ import {
   TOOLBAR_FLAG_DATA_EVENT,
   TOOLBAR_FLAG_REQUEST_EVENT,
   TOOLBAR_FLAG_UPDATE_EVENT,
+  TOOLBAR_FLAG_UPDATE_RESULT_EVENT,
 } from "./shared";
-import { parseEditedFlagValue } from "./value";
-
-type FormValue = boolean | string | null;
-
-type EditableEditorSchema = Exclude<FlagEditorSchema, { kind: "readonly" }>;
+import {
+  getBooleanFormValue,
+  getInitialInputValue,
+  useFlagForm,
+} from "./useFlagForm";
 
 const toolbarApp: DevToolbarApp = defineToolbarApp({
   init(canvas, _app, server) {
@@ -55,50 +57,18 @@ export function requestFlagData(
 function ToolbarApp({ server }: { server: ToolbarServerHelpers }) {
   const [data, setData] = useState<FlagDataSuccess>();
   const [error, setError] = useState<string>();
-  const [formValues, setFormValues] = useState<Record<string, FormValue>>({});
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     requestFlagData(server, (payload) => {
       if ("error" in payload) {
         setError(payload.error);
-        setIsSaving(false);
         return;
       }
 
       setData(payload);
       setError(undefined);
-      setFormValues(createInitialFormValues(payload));
-      setIsSaving(false);
     });
   }, [server]);
-
-  const updateFormValue = (key: string, value: FormValue) => {
-    setFormValues((currentValues) => ({
-      ...currentValues,
-      [key]: value,
-    }));
-  };
-
-  const handleError = (message: string) => {
-    setError(message);
-    setIsSaving(false);
-  };
-
-  const resetForm = () => {
-    if (data == null) {
-      return;
-    }
-
-    setError(undefined);
-    setFormValues(createInitialFormValues(data));
-  };
-
-  const saveForm = (payload: FlagUpdateRequest) => {
-    setError(undefined);
-    setIsSaving(true);
-    server.send<FlagUpdateRequest>(TOOLBAR_FLAG_UPDATE_EVENT, payload);
-  };
 
   if (data == null) {
     if (isNonEmptyString(error)) {
@@ -110,14 +80,51 @@ function ToolbarApp({ server }: { server: ToolbarServerHelpers }) {
     );
   }
 
-  const hasUnsavedChanges = formHasUnsavedChanges(data, formValues);
-  const entries = Object.entries(data.flags);
+  return <LoadedToolbarApp data={data} error={error} server={server} />;
+}
+
+function LoadedToolbarApp(props: {
+  data: FlagDataSuccess;
+  error?: string;
+  server: ToolbarServerHelpers;
+}) {
+  const [submitLifecycle, setSubmitLifecycle] = useState<{
+    result?: FlagUpdateResult;
+    submittedAt?: number;
+  }>({});
+  const form = useFlagForm(props.data, submitLifecycle);
+  const entries = Object.entries(props.data.flags);
+
+  useEffect(() => {
+    props.server.on<FlagUpdateResult>(
+      TOOLBAR_FLAG_UPDATE_RESULT_EVENT,
+      (result) => {
+        setSubmitLifecycle((currentLifecycle) => ({
+          ...currentLifecycle,
+          result,
+        }));
+      },
+    );
+  }, [props.server]);
+
+  const onSave = form.handleSubmit((flags) => {
+    setSubmitLifecycle({
+      result: undefined,
+      submittedAt: Date.now(),
+    });
+    props.server.send<FlagUpdateRequest>(TOOLBAR_FLAG_UPDATE_EVENT, {
+      flags,
+      mode: props.data.mode,
+    });
+  });
 
   return (
     <>
-      <ToolbarHeader data={data} />
-      {isNonEmptyString(error) ? (
-        <ToolbarBanner message={error} tone="error" />
+      <ToolbarHeader data={props.data} />
+      {isNonEmptyString(props.error) ? (
+        <ToolbarBanner message={props.error} tone="error" />
+      ) : isNonEmptyString(form.formError) ? (
+        <ToolbarBanner message={form.formError} tone="error" />
       ) : null}
       {entries.length === 0 ? (
         <p
@@ -134,24 +141,22 @@ function ToolbarApp({ server }: { server: ToolbarServerHelpers }) {
           <div style={{ display: "grid", gap: "10px" }}>
             {entries.map(([key, value]) => (
               <FlagRow
-                data={data}
+                data={props.data}
+                fieldError={form.fieldErrors[key]}
                 flagKey={key}
-                formValues={formValues}
-                isSaving={isSaving}
+                formValues={form.values}
+                isSaving={form.isSubmitting}
                 key={key}
-                onChange={updateFormValue}
+                onChange={form.setValue}
                 value={value}
               />
             ))}
           </div>
           <ActionBar
-            data={data}
-            formValues={formValues}
-            hasUnsavedChanges={hasUnsavedChanges}
-            isSaving={isSaving}
-            onError={handleError}
-            onReset={resetForm}
-            onSave={saveForm}
+            hasUnsavedChanges={form.hasUnsavedChanges}
+            isSaving={form.isSubmitting}
+            onReset={form.reset}
+            onSave={onSave}
           />
         </>
       )}
@@ -221,10 +226,11 @@ function ToolbarBanner(props: { message: string; tone: "error" | "info" }) {
 
 function FlagRow(props: {
   data: FlagDataSuccess;
+  fieldError?: string;
   flagKey: string;
-  formValues: Record<string, FormValue>;
+  formValues: Record<string, boolean | string | null>;
   isSaving: boolean;
-  onChange: (key: string, value: FormValue) => void;
+  onChange: (key: string, value: boolean | string | null) => void;
   value: unknown;
 }) {
   const editorSchema = props.data.editors[props.flagKey] ?? {
@@ -275,6 +281,7 @@ function FlagRow(props: {
           <ReadonlyValue value={props.value} />
         ) : (
           <EditableField
+            fieldError={props.fieldError}
             flagKey={props.flagKey}
             formValues={props.formValues}
             initialValue={props.value}
@@ -289,16 +296,18 @@ function FlagRow(props: {
 }
 
 function EditableField(props: {
+  fieldError?: string;
   flagKey: string;
-  formValues: Record<string, FormValue>;
+  formValues: Record<string, boolean | string | null>;
   initialValue: unknown;
   isSaving: boolean;
-  onChange: (key: string, value: FormValue) => void;
-  schema: EditableEditorSchema;
+  onChange: (key: string, value: boolean | string | null) => void;
+  schema: Exclude<FlagEditorSchema, { kind: "readonly" }>;
 }) {
   if (props.schema.kind === "boolean") {
     return (
       <BooleanField
+        errorMessage={props.fieldError}
         flagKey={props.flagKey}
         initialValue={props.initialValue}
         isSaving={props.isSaving}
@@ -315,11 +324,19 @@ function EditableField(props: {
 
   if (props.schema.kind === "null") {
     return (
-      <p
-        style={{ fontSize: "13px", lineHeight: 1.45, margin: 0, opacity: 0.74 }}
-      >
-        This schema only accepts "null".
-      </p>
+      <div style={{ display: "grid", gap: "8px" }}>
+        <p
+          style={{
+            fontSize: "13px",
+            lineHeight: 1.45,
+            margin: 0,
+            opacity: 0.74,
+          }}
+        >
+          This schema only accepts "null".
+        </p>
+        <FieldErrorMessage message={props.fieldError} />
+      </div>
     );
   }
 
@@ -383,16 +400,18 @@ function EditableField(props: {
           </ToolbarButton>
         </div>
       ) : null}
+      <FieldErrorMessage message={props.fieldError} />
     </div>
   );
 }
 
 function BooleanField(props: {
+  errorMessage?: string;
   flagKey: string;
   initialValue: unknown;
   isSaving: boolean;
   nullable: boolean;
-  onChange: (key: string, value: FormValue) => void;
+  onChange: (key: string, value: boolean | string | null) => void;
   value: boolean | null;
 }) {
   return (
@@ -434,7 +453,27 @@ function BooleanField(props: {
           </ToolbarButton>
         ) : null}
       </div>
+      <FieldErrorMessage message={props.errorMessage} />
     </div>
+  );
+}
+
+function FieldErrorMessage(props: { message?: string }) {
+  if (!isNonEmptyString(props.message)) {
+    return null;
+  }
+
+  return (
+    <p
+      style={{
+        color: "rgba(255, 132, 122, 0.98)",
+        fontSize: "12px",
+        lineHeight: 1.4,
+        margin: 0,
+      }}
+    >
+      {props.message}
+    </p>
   );
 }
 
@@ -459,13 +498,10 @@ function ReadonlyValue({ value }: { value: unknown }) {
 }
 
 function ActionBar(props: {
-  data: FlagDataSuccess;
-  formValues: Record<string, FormValue>;
   hasUnsavedChanges: boolean;
   isSaving: boolean;
-  onError: (message: string) => void;
   onReset: () => void;
-  onSave: (payload: FlagUpdateRequest) => void;
+  onSave: () => Promise<void>;
 }) {
   return (
     <div
@@ -491,18 +527,7 @@ function ActionBar(props: {
         button-style="green"
         disabled={props.isSaving || !props.hasUnsavedChanges}
         onClick={() => {
-          try {
-            props.onSave({
-              flags: buildDraftFlags(props.data, props.formValues),
-              mode: props.data.mode,
-            });
-          } catch (error) {
-            props.onError(
-              error instanceof Error
-                ? error.message
-                : "Failed to parse flag value.",
-            );
-          }
+          void props.onSave();
         }}
         size="small"
       >
@@ -524,108 +549,4 @@ function getEditorLabel(editorSchema: FlagEditorSchema): string {
 
 function isNonEmptyString(value?: unknown): value is string {
   return typeof value === "string" && value !== "";
-}
-
-function createInitialFormValues(
-  data: FlagDataSuccess,
-): Record<string, FormValue> {
-  return Object.fromEntries(
-    Object.entries(data.editors)
-      .filter((entry): entry is [string, EditableEditorSchema] => {
-        return entry[1].kind !== "readonly";
-      })
-      .map(([key, editorSchema]) => [
-        key,
-        toInitialFormValue(editorSchema, data.flags[key]),
-      ]),
-  );
-}
-
-function toInitialFormValue(
-  editorSchema: EditableEditorSchema,
-  initialValue: unknown,
-): FormValue {
-  if (editorSchema.kind === "null") {
-    return null;
-  }
-
-  if (initialValue === null) {
-    return null;
-  }
-
-  if (editorSchema.kind === "boolean") {
-    return initialValue === true;
-  }
-
-  return getInitialInputValue(editorSchema.kind, initialValue);
-}
-
-function getInitialInputValue(
-  kind: Exclude<EditableEditorSchema["kind"], "boolean" | "null">,
-  initialValue: unknown,
-): string {
-  if (kind === "number" && typeof initialValue === "number") {
-    return String(initialValue);
-  }
-
-  if (kind === "string" && typeof initialValue === "string") {
-    return initialValue;
-  }
-
-  return "";
-}
-
-function getBooleanFormValue(
-  formValues: Record<string, FormValue>,
-  key: string,
-  initialValue: unknown,
-): boolean | null {
-  const currentValue = formValues[key];
-  if (typeof currentValue === "boolean" || currentValue === null) {
-    return currentValue;
-  }
-
-  return initialValue === true;
-}
-
-function formHasUnsavedChanges(
-  data: FlagDataSuccess,
-  formValues: Record<string, FormValue>,
-): boolean {
-  const initialFormValues = createInitialFormValues(data);
-
-  return Object.keys(initialFormValues).some((key) => {
-    return formValues[key] !== initialFormValues[key];
-  });
-}
-
-function buildDraftFlags(
-  data: FlagDataSuccess,
-  formValues: Record<string, FormValue>,
-): Record<string, unknown> {
-  const nextFlags = { ...data.flags };
-
-  for (const [key, editorSchema] of Object.entries(data.editors)) {
-    if (editorSchema.kind === "readonly") {
-      continue;
-    }
-
-    const formValue = formValues[key];
-    if (formValue === null) {
-      nextFlags[key] = null;
-      continue;
-    }
-
-    if (editorSchema.kind === "boolean") {
-      nextFlags[key] = formValue === true;
-      continue;
-    }
-
-    nextFlags[key] = parseEditedFlagValue(
-      editorSchema.kind,
-      typeof formValue === "string" ? formValue : "",
-    );
-  }
-
-  return nextFlags;
 }

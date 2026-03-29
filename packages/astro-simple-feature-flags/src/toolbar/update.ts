@@ -1,10 +1,14 @@
 import type { z } from "astro/zod";
 
 import type { AnyZodObject } from "../zod";
+import type { FlagFieldErrors } from "./shared";
 
 export class InvalidToolbarPayloadError extends Error {
-  constructor(message: string) {
+  readonly fieldErrors: FlagFieldErrors;
+
+  constructor(message: string, fieldErrors: FlagFieldErrors = {}) {
     super(message);
+    this.fieldErrors = fieldErrors;
     this.name = "InvalidToolbarPayloadError";
   }
 }
@@ -21,15 +25,21 @@ export const validateToolbarFlagDraft = async (
 
   const parseRes = await schema.safeParseAsync(input);
   if (!parseRes.success) {
-    throw new InvalidToolbarPayloadError(
-      formatZodIssues(parseRes.error.issues),
-    );
+    throw new InvalidToolbarPayloadError(...formatZodIssues(parseRes.error.issues));
   }
 
   return input;
 };
 
-const formatZodIssues = (issues: z.core.$ZodIssue[]): string => {
+const formatZodIssues = (
+  issues: z.core.$ZodIssue[],
+): [message: string, fieldErrors: FlagFieldErrors] => {
+  const fieldErrors = Object.fromEntries(
+    issues
+      .filter((issue) => issue.path.length > 0)
+      .map((issue) => [issue.path.join("."), issue.message]),
+  );
+
   const message = issues
     .map((issue) => {
       const path = issue.path.length > 0 ? issue.path.join(".") : "(root)";
@@ -37,7 +47,7 @@ const formatZodIssues = (issues: z.core.$ZodIssue[]): string => {
     })
     .join("\n");
 
-  return `Feature flag validation failed.\n${message}`;
+  return [`Feature flag validation failed.\n${message}`, fieldErrors];
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
