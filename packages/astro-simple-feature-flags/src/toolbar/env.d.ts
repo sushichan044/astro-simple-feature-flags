@@ -27,7 +27,7 @@ interface ToolbarTooltipSection {
   clickAction?: () => Promise<void> | void;
   clickDescription?: string;
   content?: string;
-  icon?: ToolbarIconName;
+  icon?: Icon;
   inlineTitle?: string;
   title?: string;
 }
