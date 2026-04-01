@@ -1,10 +1,7 @@
 import { z } from "astro/zod";
 import { describe, expect, it } from "vitest";
 
-import {
-  InvalidToolbarPayloadError,
-  validateToolbarFlagDraft,
-} from "./update";
+import { InvalidToolbarPayloadError, validateToolbarFlagDraft } from "./update";
 
 describe("validateToolbarFlagDraft", () => {
   it("returns the original input object when schema validation succeeds", async () => {

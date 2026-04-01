@@ -25,7 +25,9 @@ export const validateToolbarFlagDraft = async (
 
   const parseRes = await schema.safeParseAsync(input);
   if (!parseRes.success) {
-    throw new InvalidToolbarPayloadError(...formatZodIssues(parseRes.error.issues));
+    throw new InvalidToolbarPayloadError(
+      ...formatZodIssues(parseRes.error.issues),
+    );
   }
 
   return input;

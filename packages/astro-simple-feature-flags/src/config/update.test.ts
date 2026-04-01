@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { UnsupportedFlagConfigError, updateFlagConfigSource } from "./update";
+import { updateFlagConfigSource } from "./update";
 
 describe("updateFlagConfigSource", () => {
   it("replaces the selected mode object with validated input values", () => {
@@ -108,7 +108,9 @@ export default defineConfig({
           mode: "development",
         },
       ),
-    ).toThrow("static object literal");
+    ).toThrow(
+      'Feature flag config at "flag.development" must be a static object literal.',
+    );
   });
 
   it("throws when the existing mode config is not an object literal", () => {
@@ -128,6 +130,48 @@ export default defineConfig({
           mode: "development",
         },
       ),
-    ).toThrow(UnsupportedFlagConfigError);
+    ).toThrow(
+      'Feature flag config at "flag.development" must be a static object literal.',
+    );
+  });
+
+  it("throws when the flag config is not an object literal", () => {
+    expect(() =>
+      updateFlagConfigSource(
+        `
+export default defineConfig({
+  flag: true,
+});
+`,
+        {
+          flags: {
+            fooReleased: false,
+          },
+          mode: "development",
+        },
+      ),
+    ).toThrow('Feature flag config at "flag" must be a static object literal.');
+  });
+
+  it("throws when the requested mode key is missing", () => {
+    expect(() =>
+      updateFlagConfigSource(
+        `
+export default defineConfig({
+  flag: {
+    production: {},
+  },
+});
+`,
+        {
+          flags: {
+            fooReleased: false,
+          },
+          mode: "development",
+        },
+      ),
+    ).toThrow(
+      'Feature flag config key "development" was not found as a static property at "flag.development".',
+    );
   });
 });

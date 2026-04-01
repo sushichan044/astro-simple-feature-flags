@@ -21,12 +21,7 @@ export const updateFlagConfigSource = (
 ): string => {
   const mod = parseModule(source);
   const config = getConfigObject(mod.exports["default"]);
-  const flagObject = getStaticObjectProperty(config.$ast, "flag", "flag");
-  getStaticObjectProperty(
-    flagObject.value,
-    options.mode,
-    `flag.${options.mode}`,
-  );
+  assertStaticConfigShape(config.$ast, ["flag", options.mode]);
 
   const flagConfig = config.flag;
   if (!isRecord(flagConfig)) {
@@ -62,6 +57,27 @@ type ConfigObjectProxy = ProxifiedObject<{
 
 type ObjectExpressionNode = Extract<ASTNode, { type: "ObjectExpression" }>;
 type ObjectPropertyNode = Extract<ASTNode, { type: "ObjectProperty" }>;
+type StaticConfigAccessFailureKind =
+  | "missing-property"
+  | "non-object-expression";
+
+class StaticConfigAccessError extends Error {
+  readonly failureKind: StaticConfigAccessFailureKind;
+  readonly key?: string;
+  readonly path: string[];
+
+  constructor(
+    failureKind: StaticConfigAccessFailureKind,
+    path: string[],
+    key?: string,
+  ) {
+    super("Static config access failed.");
+    this.name = "StaticConfigAccessError";
+    this.failureKind = failureKind;
+    this.path = path;
+    this.key = key;
+  }
+}
 
 const getConfigObject = (defaultExport: unknown): ConfigObjectProxy => {
   if (isFunctionCall(defaultExport)) {
@@ -84,19 +100,20 @@ const getConfigObject = (defaultExport: unknown): ConfigObjectProxy => {
   );
 };
 
-const getStaticObjectProperty = (
+const assertStaticConfigShape = (
   objectExpression: ASTNode,
-  key: string,
-  path: string,
-): ObjectPropertyNode => {
-  const property = getStaticProperty(objectExpression, key);
-  if (property.value.type !== "ObjectExpression") {
-    throw new UnsupportedFlagConfigError(
-      `Feature flag config at "${path}" must be a static object literal.`,
-    );
-  }
+  path: string[],
+): void => {
+  try {
+    const property = getStaticPropertyByPath(objectExpression, path);
+    assertStaticObjectExpression(property.value, path);
+  } catch (error) {
+    if (error instanceof StaticConfigAccessError) {
+      throw toUnsupportedFlagConfigError(error);
+    }
 
-  return property;
+    throw error;
+  }
 };
 
 const getStaticProperty = (
@@ -120,12 +137,71 @@ const getStaticProperty = (
   );
 
   if (!property) {
-    throw new UnsupportedFlagConfigError(
-      `Feature flag config key "${key}" was not found as a static property.`,
-    );
+    throw new StaticConfigAccessError("missing-property", [key], key);
   }
 
   return property;
+};
+
+const getStaticPropertyByPath = (
+  objectExpression: ASTNode,
+  path: string[],
+): ObjectPropertyNode => {
+  let currentNode = assertStaticObjectExpression(objectExpression, []);
+  let currentPath: string[] = [];
+
+  for (const key of path) {
+    currentPath = [...currentPath, key];
+
+    let property: ObjectPropertyNode;
+    try {
+      property = getStaticProperty(currentNode, key);
+    } catch (error) {
+      if (
+        error instanceof StaticConfigAccessError &&
+        error.failureKind === "missing-property"
+      ) {
+        throw new StaticConfigAccessError("missing-property", currentPath, key);
+      }
+
+      throw error;
+    }
+
+    if (currentPath.length === path.length) {
+      return property;
+    }
+
+    currentNode = assertStaticObjectExpression(property.value, currentPath);
+  }
+
+  throw new StaticConfigAccessError("non-object-expression", path);
+};
+
+const assertStaticObjectExpression = (
+  node: ASTNode,
+  path: string[],
+): ObjectExpressionNode => {
+  if (!isObjectExpressionNode(node)) {
+    throw new StaticConfigAccessError("non-object-expression", path);
+  }
+
+  return node;
+};
+
+const toUnsupportedFlagConfigError = (
+  error: StaticConfigAccessError,
+): UnsupportedFlagConfigError => {
+  const joinedPath = error.path.join(".");
+
+  if (error.failureKind === "missing-property") {
+    return new UnsupportedFlagConfigError(
+      `Feature flag config key "${error.key}" was not found as a static property at "${joinedPath}".`,
+    );
+  }
+
+  return new UnsupportedFlagConfigError(
+    `Feature flag config at "${joinedPath}" must be a static object literal.`,
+  );
 };
 
 const isFunctionCall = (
