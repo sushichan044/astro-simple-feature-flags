@@ -9,6 +9,8 @@ import {
   createInitialFormValues,
   formHasUnsavedChanges,
   getNextSubmitState,
+  shouldResetFormState,
+  shouldUseLocalSubmitHandling,
 } from "./useFlagForm";
 
 const baseData: FlagDataSuccess = {
@@ -177,5 +179,58 @@ describe("getNextSubmitState", () => {
       formError: undefined,
       isSubmitting: false,
     });
+  });
+});
+
+describe("shouldUseLocalSubmitHandling", () => {
+  it("falls back to local submit handling when no lifecycle object is provided", () => {
+    expect(shouldUseLocalSubmitHandling(undefined)).toBe(true);
+    expect(shouldUseLocalSubmitHandling({})).toBe(false);
+  });
+});
+
+describe("shouldResetFormState", () => {
+  it("keeps unsaved edits when new data arrives with different server values", () => {
+    const editedValues = {
+      ...createInitialFormValues(baseData),
+      variant: "experiment",
+    };
+    const nextData: FlagDataSuccess = {
+      ...baseData,
+      flags: {
+        ...baseData.flags,
+        variant: "control",
+      },
+    };
+
+    expect(
+      shouldResetFormState({
+        currentValues: editedValues,
+        nextData,
+        previousData: baseData,
+      }),
+    ).toBe(false);
+  });
+
+  it("resets when the incoming data matches the current form values", () => {
+    const editedValues = {
+      ...createInitialFormValues(baseData),
+      variant: "experiment",
+    };
+    const nextData: FlagDataSuccess = {
+      ...baseData,
+      flags: {
+        ...baseData.flags,
+        variant: "experiment",
+      },
+    };
+
+    expect(
+      shouldResetFormState({
+        currentValues: editedValues,
+        nextData,
+        previousData: baseData,
+      }),
+    ).toBe(true);
   });
 });

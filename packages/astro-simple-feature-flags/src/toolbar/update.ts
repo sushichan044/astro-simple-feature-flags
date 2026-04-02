@@ -30,7 +30,7 @@ export const validateToolbarFlagDraft = async (
     );
   }
 
-  return input;
+  return parseRes.data;
 };
 
 const formatZodIssues = (

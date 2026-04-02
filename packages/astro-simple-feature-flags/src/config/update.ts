@@ -46,9 +46,20 @@ export const updateFlagConfigFile = async (
   filePath: string,
   options: UpdateFlagConfigSourceOptions,
 ): Promise<void> => {
-  const source = await readFile(filePath, "utf8");
-  const updatedSource = updateFlagConfigSource(source, options);
-  await writeFile(filePath, updatedSource, "utf8");
+  try {
+    const source = await readFile(filePath, "utf8");
+    const updatedSource = updateFlagConfigSource(source, options);
+    await writeFile(filePath, updatedSource, "utf8");
+  } catch (error) {
+    const message = getErrorMessage(error);
+
+    throw new Error(
+      `Failed to update feature flag config file "${filePath}": ${message}`,
+      {
+        cause: error,
+      },
+    );
+  }
 };
 
 type ConfigObjectProxy = ProxifiedObject<{
@@ -202,6 +213,18 @@ const toUnsupportedFlagConfigError = (
   return new UnsupportedFlagConfigError(
     `Feature flag config at "${joinedPath}" must be a static object literal.`,
   );
+};
+
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  return "Unknown error";
 };
 
 const isFunctionCall = (

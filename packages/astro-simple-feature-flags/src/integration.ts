@@ -30,6 +30,7 @@ import {
   InvalidToolbarPayloadError,
   validateToolbarFlagDraft,
 } from "./toolbar/update";
+import { createKeyedTaskQueue } from "./utils/keyed-task-queue";
 import { compileVirtualModuleDts } from "./virtual-module";
 import { _macroVirtualModuleDts } from "./virtual-module/macro" with {
   type: "macro",
@@ -40,6 +41,7 @@ export const simpleFeatureFlags = (
   options: Partial<FeatureFlagResolveOptions> = {},
 ): AstroIntegration => {
   const { configFileName = "flags" } = options;
+  const updateQueue = createKeyedTaskQueue();
   let codeGenDir: URL;
   let configRoot: URL;
 
@@ -175,7 +177,9 @@ export const simpleFeatureFlags = (
         };
 
         toolbar.on<FlagUpdateRequest>(TOOLBAR_FLAG_UPDATE_EVENT, (payload) => {
-          void handleFlagUpdate(payload);
+          void updateQueue.run(configFilePath, async () =>
+            handleFlagUpdate(payload),
+          );
         });
 
         server.watcher.on("change", (changedPath) => {

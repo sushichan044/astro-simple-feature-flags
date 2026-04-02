@@ -1,6 +1,9 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { updateFlagConfigSource } from "./update";
+import { updateFlagConfigFile, updateFlagConfigSource } from "./update";
 
 describe("updateFlagConfigSource", () => {
   it("replaces the selected mode object with validated input values", () => {
@@ -173,5 +176,27 @@ export default defineConfig({
     ).toThrow(
       'Feature flag config key "development" was not found as a static property at "flag.development".',
     );
+  });
+});
+
+describe("updateFlagConfigFile", () => {
+  it("wraps filesystem errors with the file path context", async () => {
+    const tempDir = await mkdtemp(
+      join(tmpdir(), "astro-simple-feature-flags-"),
+    );
+    const missingFilePath = join(tempDir, "missing-flags.ts");
+
+    await expect(
+      updateFlagConfigFile(missingFilePath, {
+        flags: {
+          fooReleased: true,
+        },
+        mode: "development",
+      }),
+    ).rejects.toThrow(
+      `Failed to update feature flag config file "${missingFilePath}"`,
+    );
+
+    await rm(tempDir, { force: true, recursive: true });
   });
 });

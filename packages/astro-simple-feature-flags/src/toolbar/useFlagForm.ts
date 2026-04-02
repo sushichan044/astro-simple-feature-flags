@@ -1,4 +1,4 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 
 import type { FlagEditorSchema } from "./schema";
 import type {
@@ -41,6 +41,7 @@ export const useFlagForm = (
   data: FlagDataSuccess,
   submitLifecycle?: SubmitLifecycle,
 ): UseFlagFormResult => {
+  const previousDataRef = useRef(data);
   const [values, setValues] = useState<Record<string, FormValue>>(() =>
     createInitialFormValues(data),
   );
@@ -51,12 +52,22 @@ export const useFlagForm = (
   });
 
   useEffect(() => {
-    setValues(createInitialFormValues(data));
-    setSubmitState({
-      fieldErrors: {},
-      formError: undefined,
-      isSubmitting: false,
-    });
+    if (
+      shouldResetFormState({
+        currentValues: values,
+        nextData: data,
+        previousData: previousDataRef.current,
+      })
+    ) {
+      setValues(createInitialFormValues(data));
+      setSubmitState({
+        fieldErrors: {},
+        formError: undefined,
+        isSubmitting: false,
+      });
+    }
+
+    previousDataRef.current = data;
   }, [data]);
 
   useEffect(() => {
@@ -100,6 +111,14 @@ export const useFlagForm = (
 
       try {
         await onSubmit(buildDraftFlags(data, values));
+
+        if (shouldUseLocalSubmitHandling(submitLifecycle)) {
+          setSubmitState({
+            fieldErrors: {},
+            formError: undefined,
+            isSubmitting: false,
+          });
+        }
       } catch (error) {
         setSubmitState({
           fieldErrors: {},
@@ -123,6 +142,12 @@ export const useFlagForm = (
     values,
   };
 };
+
+export function shouldUseLocalSubmitHandling(
+  submitLifecycle: SubmitLifecycle | undefined,
+): boolean {
+  return submitLifecycle == null;
+}
 
 export function clearFieldError(
   fieldErrors: FlagFieldErrors,
@@ -250,6 +275,20 @@ export function formHasUnsavedChanges(
   return Object.keys(initialFormValues).some((key) => {
     return formValues[key] !== initialFormValues[key];
   });
+}
+
+export function shouldResetFormState(params: {
+  currentValues: Record<string, FormValue>;
+  nextData: FlagDataSuccess;
+  previousData: FlagDataSuccess;
+}): boolean {
+  const { currentValues, nextData, previousData } = params;
+
+  if (!formHasUnsavedChanges(previousData, currentValues)) {
+    return true;
+  }
+
+  return !formHasUnsavedChanges(nextData, currentValues);
 }
 
 export function buildDraftFlags(

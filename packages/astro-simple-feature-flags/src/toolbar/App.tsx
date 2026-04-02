@@ -6,7 +6,6 @@ import { useEffect, useState } from "preact/hooks";
 
 import type { FlagEditorSchema } from "./schema";
 import type {
-  FlagDataPayload,
   FlagDataSuccess,
   FlagUpdateRequest,
   FlagUpdateResult,
@@ -18,9 +17,8 @@ import {
   ToolbarCard,
   ToolbarToggle,
 } from "./Components";
+import { requestFlagData, subscribeToServerEvent } from "./server-events";
 import {
-  TOOLBAR_FLAG_DATA_EVENT,
-  TOOLBAR_FLAG_REQUEST_EVENT,
   TOOLBAR_FLAG_UPDATE_EVENT,
   TOOLBAR_FLAG_UPDATE_RESULT_EVENT,
 } from "./shared";
@@ -46,20 +44,12 @@ const toolbarApp: DevToolbarApp = defineToolbarApp({
 
 export default toolbarApp;
 
-export function requestFlagData(
-  server: ToolbarServerHelpers,
-  listener: (payload: FlagDataPayload) => void,
-) {
-  server.on<FlagDataPayload>(TOOLBAR_FLAG_DATA_EVENT, listener);
-  server.send<undefined>(TOOLBAR_FLAG_REQUEST_EVENT, undefined);
-}
-
 function ToolbarApp({ server }: { server: ToolbarServerHelpers }) {
   const [data, setData] = useState<FlagDataSuccess>();
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    requestFlagData(server, (payload) => {
+    return requestFlagData(server, (payload) => {
       if ("error" in payload) {
         setError(payload.error);
         return;
@@ -96,7 +86,8 @@ function LoadedToolbarApp(props: {
   const entries = Object.entries(props.data.flags);
 
   useEffect(() => {
-    props.server.on<FlagUpdateResult>(
+    return subscribeToServerEvent<FlagUpdateResult>(
+      props.server,
       TOOLBAR_FLAG_UPDATE_RESULT_EVENT,
       (result) => {
         setSubmitLifecycle((currentLifecycle) => ({
