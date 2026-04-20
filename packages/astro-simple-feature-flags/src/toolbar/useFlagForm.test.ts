@@ -39,6 +39,19 @@ describe("createInitialFormValues", () => {
       variant: "candidate",
     });
   });
+
+  it("stores undefined for optional fields absent from the flags data", () => {
+    const data: FlagDataSuccess = {
+      ...baseData,
+      editors: {
+        ...baseData.editors,
+        optionalNum: { kind: "number", nullable: false },
+      },
+      flags: { ...baseData.flags },
+    };
+
+    expect(createInitialFormValues(data)["optionalNum"]).toBeUndefined();
+  });
 });
 
 describe("formHasUnsavedChanges", () => {
@@ -88,6 +101,25 @@ describe("buildDraftFlags", () => {
       },
       fieldErrors: {},
     });
+  });
+
+  it("preserves optional unset fields without validation errors", () => {
+    const data: FlagDataSuccess = {
+      ...baseData,
+      editors: {
+        ...baseData.editors,
+        optionalNum: { kind: "number", nullable: false },
+      },
+      flags: { ...baseData.flags },
+    };
+
+    const { draftFlags, fieldErrors } = buildDraftFlags(
+      data,
+      createInitialFormValues(data),
+    );
+
+    expect(draftFlags["optionalNum"]).toBeUndefined();
+    expect(fieldErrors).toEqual({});
   });
 
   it("collects per-key parse errors instead of throwing", () => {
@@ -208,6 +240,25 @@ describe("shouldUseLocalSubmitHandling", () => {
 });
 
 describe("rebaseFormValues", () => {
+  it("preserves a null draft when new data arrives before the user saves", () => {
+    const editedValues = {
+      ...createInitialFormValues(baseData),
+      variant: null,
+    };
+    const nextData: FlagDataSuccess = {
+      ...baseData,
+      flags: { ...baseData.flags, variant: "control" },
+    };
+
+    expect(
+      rebaseFormValues({
+        currentValues: editedValues,
+        nextData,
+        previousData: baseData,
+      }),
+    ).toMatchObject({ variant: null });
+  });
+
   it("keeps user-edited fields and updates pristine fields from new data", () => {
     const editedValues = {
       ...createInitialFormValues(baseData),

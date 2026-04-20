@@ -9,7 +9,7 @@ import type {
 
 import { parseEditedFlagValue } from "./value";
 
-type FormValue = boolean | string | null;
+export type FormValue = boolean | string | null | undefined;
 
 type EditableEditorSchema = Exclude<FlagEditorSchema, { kind: "readonly" }>;
 
@@ -34,7 +34,7 @@ export type UseFlagFormResult = {
   hasUnsavedChanges: boolean;
   isSubmitting: boolean;
   reset: () => void;
-  setValue: (key: string, value: FormValue) => void;
+  setValue: (key: string, value: boolean | string | null) => void;
   values: Record<string, FormValue>;
 };
 
@@ -87,7 +87,7 @@ export const useFlagForm = (
     );
   }, [submitLifecycle]);
 
-  const setValue = (key: string, value: FormValue) => {
+  const setValue = (key: string, value: boolean | string | null) => {
     setValues((currentValues) => ({
       ...currentValues,
       [key]: value,
@@ -245,6 +245,10 @@ function toInitialFormValue(
     return null;
   }
 
+  if (initialValue === undefined) {
+    return undefined;
+  }
+
   if (initialValue === null) {
     return null;
   }
@@ -322,7 +326,7 @@ export function rebaseFormValues(params: {
     Object.entries(nextInitialValues).map(([key, nextValue]) => [
       key,
       currentValues[key] !== previousInitialValues[key]
-        ? (currentValues[key] ?? nextValue)
+        ? currentValues[key]
         : nextValue,
     ]),
   );
@@ -341,6 +345,9 @@ export function buildDraftFlags(
     }
 
     const formValue = formValues[key];
+    if (formValue === undefined) {
+      continue;
+    }
     if (formValue === null) {
       nextFlags[key] = null;
       continue;

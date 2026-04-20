@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import type { FlagEditorSchema } from "./schema";
 import type {
   FlagDataSuccess,
+  FlagFieldErrors,
   FlagUpdateRequest,
   FlagUpdateResult,
 } from "./shared";
@@ -23,6 +24,7 @@ import {
   TOOLBAR_FLAG_UPDATE_RESULT_EVENT,
 } from "./shared";
 import {
+  type FormValue,
   getBooleanFormValue,
   getInitialInputValue,
   useFlagForm,
@@ -179,7 +181,7 @@ function LoadedToolbarApp(props: {
             {entries.map(([key, value]) => (
               <FlagRow
                 data={props.data}
-                fieldError={form.fieldErrors[key]}
+                fieldError={getFieldErrorForKey(form.fieldErrors, key)}
                 flagKey={key}
                 formValues={form.values}
                 isSaving={form.isSubmitting}
@@ -265,7 +267,7 @@ function FlagRow(props: {
   data: FlagDataSuccess;
   fieldError?: string;
   flagKey: string;
-  formValues: Record<string, boolean | string | null>;
+  formValues: Record<string, FormValue>;
   isSaving: boolean;
   onChange: (key: string, value: boolean | string | null) => void;
   value: unknown;
@@ -315,7 +317,10 @@ function FlagRow(props: {
           )}
         </div>
         {editorSchema.kind === "readonly" ? (
-          <ReadonlyValue value={props.value} />
+          <>
+            <ReadonlyValue value={props.value} />
+            <FieldErrorMessage message={props.fieldError} />
+          </>
         ) : (
           <EditableField
             fieldError={props.fieldError}
@@ -335,7 +340,7 @@ function FlagRow(props: {
 function EditableField(props: {
   fieldError?: string;
   flagKey: string;
-  formValues: Record<string, boolean | string | null>;
+  formValues: Record<string, FormValue>;
   initialValue: unknown;
   isSaving: boolean;
   onChange: (key: string, value: boolean | string | null) => void;
@@ -582,6 +587,20 @@ function getEditorLabel(editorSchema: FlagEditorSchema): string {
   return editorSchema.nullable
     ? `${editorSchema.kind} | nullable`
     : editorSchema.kind;
+}
+
+function getFieldErrorForKey(
+  fieldErrors: FlagFieldErrors,
+  key: string,
+): string | undefined {
+  if (fieldErrors[key] != null) {
+    return fieldErrors[key];
+  }
+  const prefix = `${key}.`;
+  for (const [k, v] of Object.entries(fieldErrors)) {
+    if (k.startsWith(prefix)) return v;
+  }
+  return undefined;
 }
 
 function isNonEmptyString(value?: unknown): value is string {
