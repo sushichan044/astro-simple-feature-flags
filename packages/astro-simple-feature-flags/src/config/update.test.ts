@@ -1,5 +1,4 @@
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { mkdtempDisposable } from "node:fs/promises";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -8,7 +7,7 @@ import { updateFlagConfigFile, updateFlagConfigSource } from "./update";
 describe("updateFlagConfigSource", () => {
   it("replaces the selected mode object with validated input values", () => {
     const result = updateFlagConfigSource(
-      `
+      `s
 import { defineConfig } from "astro-simple-feature-flags/config";
 
 export default defineConfig({
@@ -247,10 +246,10 @@ export default defineConfig({
 
 describe("updateFlagConfigFile", () => {
   it("wraps filesystem errors with the file path context", async () => {
-    const tempDir = await mkdtemp(
-      join(tmpdir(), "astro-simple-feature-flags-"),
+    await using tempDir = await mkdtempDisposable(
+      "astro-simple-feature-flags-",
     );
-    const missingFilePath = join(tempDir, "missing-flags.ts");
+    const missingFilePath = join(tempDir.path, "missing-flags.ts");
 
     await expect(
       updateFlagConfigFile(missingFilePath, {
@@ -262,7 +261,5 @@ describe("updateFlagConfigFile", () => {
     ).rejects.toThrow(
       `Failed to update feature flag config file "${missingFilePath}"`,
     );
-
-    await rm(tempDir, { force: true, recursive: true });
   });
 });
