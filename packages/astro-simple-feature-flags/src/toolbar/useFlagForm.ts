@@ -111,7 +111,18 @@ export const useFlagForm = (
       });
 
       try {
-        await onSubmit(buildDraftFlags(data, values));
+        const { draftFlags, fieldErrors } = buildDraftFlags(data, values);
+
+        if (Object.keys(fieldErrors).length > 0) {
+          setSubmitState({
+            fieldErrors,
+            formError: undefined,
+            isSubmitting: false,
+          });
+          return;
+        }
+
+        await onSubmit(draftFlags);
 
         if (shouldUseLocalSubmitHandling(submitLifecycle)) {
           setSubmitState({
@@ -126,7 +137,7 @@ export const useFlagForm = (
           formError:
             error instanceof Error
               ? error.message
-              : "Failed to parse flag value.",
+              : "Failed to submit flag values.",
           isSubmitting: false,
         });
       }
@@ -295,8 +306,9 @@ export function shouldResetFormState(params: {
 export function buildDraftFlags(
   data: FlagDataSuccess,
   formValues: Record<string, FormValue>,
-): Record<string, unknown> {
+): { draftFlags: Record<string, unknown>; fieldErrors: FlagFieldErrors } {
   const nextFlags = { ...data.flags };
+  const fieldErrors: FlagFieldErrors = {};
 
   for (const [key, editorSchema] of Object.entries(data.editors)) {
     if (editorSchema.kind === "readonly") {
@@ -314,11 +326,16 @@ export function buildDraftFlags(
       continue;
     }
 
-    nextFlags[key] = parseEditedFlagValue(
-      editorSchema.kind,
-      typeof formValue === "string" ? formValue : "",
-    );
+    try {
+      nextFlags[key] = parseEditedFlagValue(
+        editorSchema.kind,
+        typeof formValue === "string" ? formValue : "",
+      );
+    } catch (error) {
+      fieldErrors[key] =
+        error instanceof Error ? error.message : "Invalid value.";
+    }
   }
 
-  return nextFlags;
+  return { draftFlags: nextFlags, fieldErrors };
 }

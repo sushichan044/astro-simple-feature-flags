@@ -79,10 +79,25 @@ describe("buildDraftFlags", () => {
         variant: null,
       }),
     ).toEqual({
+      draftFlags: {
+        fooReleased: false,
+        ignored: { nested: true },
+        rolloutRate: 0.75,
+        variant: null,
+      },
+      fieldErrors: {},
+    });
+  });
+
+  it("collects per-key parse errors instead of throwing", () => {
+    const { fieldErrors } = buildDraftFlags(baseData, {
       fooReleased: false,
-      ignored: { nested: true },
-      rolloutRate: 0.75,
+      rolloutRate: "not-a-number",
       variant: null,
+    });
+
+    expect(fieldErrors).toEqual({
+      rolloutRate: "Expected finite number input.",
     });
   });
 });
