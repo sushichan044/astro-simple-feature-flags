@@ -219,10 +219,21 @@ const assertStaticSerializableModeObject = (
 
 const assertStaticSerializableValue = (node: ASTNode, path: string[]): void => {
   switch (node.type) {
-    case "StringLiteral":
-    case "NumericLiteral":
+    case "ArrayExpression":
+      for (const element of node.elements) {
+        if (!element || element.type === "SpreadElement") {
+          throw new StaticConfigAccessError("non-object-expression", path);
+        }
+        assertStaticSerializableValue(element as ASTNode, path);
+      }
+      return;
     case "BooleanLiteral":
     case "NullLiteral":
+    case "NumericLiteral":
+    case "StringLiteral":
+      return;
+    case "ObjectExpression":
+      assertStaticSerializableModeObject(node, path);
       return;
     case "UnaryExpression":
       if (
@@ -232,17 +243,6 @@ const assertStaticSerializableValue = (node: ASTNode, path: string[]): void => {
         return;
       }
       break;
-    case "ObjectExpression":
-      assertStaticSerializableModeObject(node, path);
-      return;
-    case "ArrayExpression":
-      for (const element of node.elements) {
-        if (!element || element.type === "SpreadElement") {
-          throw new StaticConfigAccessError("non-object-expression", path);
-        }
-        assertStaticSerializableValue(element as ASTNode, path);
-      }
-      return;
   }
 
   throw new StaticConfigAccessError("non-object-expression", path);

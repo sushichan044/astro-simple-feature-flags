@@ -19,7 +19,10 @@ import {
 } from "./config/update";
 import { INTEGRATION_NAME, TOOLBAR_APP_ID } from "./constant";
 import { FlagNotFoundError } from "./errors";
-import { getFlagEditorSchemaMap } from "./toolbar/schema";
+import {
+  extractSchemaDefaults,
+  getFlagEditorSchemaMap,
+} from "./toolbar/schema";
 import {
   TOOLBAR_FLAG_DATA_EVENT,
   TOOLBAR_FLAG_REQUEST_EVENT,
@@ -102,10 +105,14 @@ export const simpleFeatureFlags = (
             fileURLToPath(flagResolution.configModuleId),
           );
 
+          const rawFlags = configModule.flag[mode];
+          const schemaDefaults = extractSchemaDefaults(configModule.schema);
+          const flags =
+            rawFlags != null ? { ...schemaDefaults, ...rawFlags } : {};
           toolbar.send<FlagDataSuccess>(TOOLBAR_FLAG_DATA_EVENT, {
             configFile,
             editors: getFlagEditorSchemaMap(configModule.schema),
-            flags: configModule.flag[mode] ?? {},
+            flags,
             mode,
           });
         };

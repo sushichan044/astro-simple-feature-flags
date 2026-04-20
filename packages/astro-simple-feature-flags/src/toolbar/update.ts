@@ -30,7 +30,10 @@ export const validateToolbarFlagDraft = async (
     );
   }
 
-  return parseRes.data;
+  const schemaKeys = new Set(Object.keys(schema.shape));
+  return Object.fromEntries(
+    Object.entries(input).filter(([key]) => schemaKeys.has(key)),
+  );
 };
 
 const formatZodIssues = (
@@ -40,9 +43,10 @@ const formatZodIssues = (
   for (const issue of issues) {
     if (issue.path.length === 0) continue;
     const key = issue.path.join(".");
-    fieldErrors[key] = fieldErrors[key]
-      ? `${fieldErrors[key]}\n${issue.message}`
-      : issue.message;
+    fieldErrors[key] =
+      fieldErrors[key] != null
+        ? `${fieldErrors[key]}\n${issue.message}`
+        : issue.message;
   }
 
   const message = issues

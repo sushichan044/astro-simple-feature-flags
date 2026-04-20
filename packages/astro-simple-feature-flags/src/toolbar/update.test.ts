@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { InvalidToolbarPayloadError, validateToolbarFlagDraft } from "./update";
 
 describe("validateToolbarFlagDraft", () => {
-  it("returns the parsed schema result when validation succeeds", async () => {
+  it("returns original input values filtered to schema keys, not the transformed output", async () => {
     const schema = z.object({
       fooReleased: z.boolean(),
       variant: z.string().transform((value) => value.length),
@@ -20,7 +20,7 @@ describe("validateToolbarFlagDraft", () => {
 
     expect(result).toEqual({
       fooReleased: true,
-      variant: 9,
+      variant: "candidate",
     });
     expect(result).not.toHaveProperty("extra");
   });
