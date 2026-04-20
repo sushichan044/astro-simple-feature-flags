@@ -21,6 +21,7 @@ export type FlagDataPayload = FlagDataError | FlagDataSuccess;
 export type FlagUpdateRequest = {
   flags: Record<string, unknown>;
   mode: string;
+  requestId: string;
 };
 
 export type FlagFieldErrors = Record<string, string>;
@@ -29,13 +30,16 @@ export type FlagUpdateResult =
   | {
       fieldErrors: FlagFieldErrors;
       ok: false;
+      requestId: string;
     }
   | {
       formError: string;
       ok: false;
+      requestId: string;
     }
   | {
       ok: true;
+      requestId: string;
     };
 
 export const TOOLBAR_FLAG_REQUEST_EVENT =

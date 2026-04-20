@@ -20,6 +20,7 @@ type SubmitState = {
 };
 
 type SubmitLifecycle = {
+  requestId?: string;
   result?: FlagUpdateResult;
   submittedAt?: number;
 };

@@ -121,6 +121,7 @@ export const simpleFeatureFlags = (
         const configFilePath = fileURLToPath(flagResolution.configModuleId);
 
         const handleFlagUpdate = async (payload: FlagUpdateRequest) => {
+          const { requestId } = payload;
           try {
             if (payload.mode !== server.config.mode) {
               throw new Error(
@@ -151,6 +152,7 @@ export const simpleFeatureFlags = (
             });
             toolbar.send<FlagUpdateResult>(TOOLBAR_FLAG_UPDATE_RESULT_EVENT, {
               ok: true,
+              requestId,
             });
             await sendFlagData();
           } catch (error) {
@@ -158,6 +160,7 @@ export const simpleFeatureFlags = (
               toolbar.send<FlagUpdateResult>(TOOLBAR_FLAG_UPDATE_RESULT_EVENT, {
                 fieldErrors: error.fieldErrors,
                 ok: false,
+                requestId,
               });
               return;
             }
@@ -172,6 +175,7 @@ export const simpleFeatureFlags = (
             toolbar.send<FlagUpdateResult>(TOOLBAR_FLAG_UPDATE_RESULT_EVENT, {
               formError,
               ok: false,
+              requestId,
             });
           }
         };

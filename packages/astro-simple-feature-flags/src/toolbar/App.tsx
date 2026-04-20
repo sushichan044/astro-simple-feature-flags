@@ -2,7 +2,7 @@ import type { DevToolbarApp, ToolbarServerHelpers } from "astro";
 
 import { defineToolbarApp } from "astro/toolbar";
 import { render } from "preact";
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 
 import type { FlagEditorSchema } from "./schema";
 import type {
@@ -73,23 +73,45 @@ function ToolbarApp({ server }: { server: ToolbarServerHelpers }) {
   return <LoadedToolbarApp data={data} error={error} server={server} />;
 }
 
+const SAVE_TIMEOUT_MS = 10_000;
+
 function LoadedToolbarApp(props: {
   data: FlagDataSuccess;
   error?: string;
   server: ToolbarServerHelpers;
 }) {
   const [submitLifecycle, setSubmitLifecycle] = useState<{
+    requestId?: string;
     result?: FlagUpdateResult;
     submittedAt?: number;
   }>({});
   const form = useFlagForm(props.data, submitLifecycle);
   const entries = Object.entries(props.data.flags);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const currentRequestIdRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current !== null) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     return subscribeToServerEvent<FlagUpdateResult>(
       props.server,
       TOOLBAR_FLAG_UPDATE_RESULT_EVENT,
       (result) => {
+        if (result.requestId !== currentRequestIdRef.current) {
+          return;
+        }
+
+        if (timeoutRef.current !== null) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+
         setSubmitLifecycle((currentLifecycle) => ({
           ...currentLifecycle,
           result,
@@ -99,13 +121,37 @@ function LoadedToolbarApp(props: {
   }, [props.server]);
 
   const onSave = form.handleSubmit((flags) => {
+    const requestId = crypto.randomUUID();
+    currentRequestIdRef.current = requestId;
+
+    if (timeoutRef.current !== null) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      timeoutRef.current = null;
+      setSubmitLifecycle((current) => {
+        if (current.requestId !== requestId) return current;
+        return {
+          ...current,
+          result: {
+            formError: "Save timed out. Please try again.",
+            ok: false,
+            requestId,
+          },
+        };
+      });
+    }, SAVE_TIMEOUT_MS);
+
     setSubmitLifecycle({
+      requestId,
       result: undefined,
       submittedAt: Date.now(),
     });
     props.server.send<FlagUpdateRequest>(TOOLBAR_FLAG_UPDATE_EVENT, {
       flags,
       mode: props.data.mode,
+      requestId,
     });
   });
 

@@ -101,6 +101,7 @@ describe("applySubmitResult", () => {
             rolloutRate: "Must be between 0 and 1.",
           },
           ok: false,
+          requestId: "test",
         },
       ),
     ).toEqual({
@@ -122,7 +123,7 @@ describe("applySubmitResult", () => {
           formError: "Validation failed.",
           isSubmitting: true,
         },
-        { ok: true },
+        { ok: true, requestId: "test" },
       ),
     ).toEqual({
       fieldErrors: {},
@@ -168,6 +169,7 @@ describe("getNextSubmitState", () => {
               rolloutRate: "Must be between 0 and 1.",
             },
             ok: false,
+            requestId: "test",
           },
           submittedAt: 1,
         },
