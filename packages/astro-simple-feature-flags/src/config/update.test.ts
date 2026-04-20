@@ -156,6 +156,72 @@ export default defineConfig({
     ).toThrow('Feature flag config at "flag" must be a static object literal.');
   });
 
+  it("throws when the mode config contains a spread element", () => {
+    expect(() =>
+      updateFlagConfigSource(
+        `
+const shared = { fooReleased: true };
+
+export default defineConfig({
+  flag: {
+    development: { ...shared, rolloutRate: 0.5 },
+  },
+});
+`,
+        {
+          flags: { fooReleased: false, rolloutRate: 1 },
+          mode: "development",
+        },
+      ),
+    ).toThrow(
+      'Feature flag config at "flag.development" must be a static object literal.',
+    );
+  });
+
+  it("throws when the mode config contains an identifier reference as a value", () => {
+    expect(() =>
+      updateFlagConfigSource(
+        `
+const rate = 0.5;
+
+export default defineConfig({
+  flag: {
+    development: { rolloutRate: rate },
+  },
+});
+`,
+        {
+          flags: { rolloutRate: 1 },
+          mode: "development",
+        },
+      ),
+    ).toThrow(
+      'Feature flag config at "flag.development" must be a static object literal.',
+    );
+  });
+
+  it("throws when the mode config contains a computed property key", () => {
+    expect(() =>
+      updateFlagConfigSource(
+        `
+const key = "fooReleased";
+
+export default defineConfig({
+  flag: {
+    development: { [key]: true },
+  },
+});
+`,
+        {
+          flags: { fooReleased: false },
+          mode: "development",
+        },
+      ),
+    ).toThrow(
+      'Feature flag config at "flag.development" must be a static object literal.',
+    );
+  });
+
   it("throws when the requested mode key is missing", () => {
     expect(() =>
       updateFlagConfigSource(

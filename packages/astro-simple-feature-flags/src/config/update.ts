@@ -117,7 +117,8 @@ const assertStaticConfigShape = (
 ): void => {
   try {
     const property = getStaticPropertyByPath(objectExpression, path);
-    assertStaticObjectExpression(property.value, path);
+    const modeObject = assertStaticObjectExpression(property.value, path);
+    assertStaticSerializableModeObject(modeObject, path);
   } catch (error) {
     if (error instanceof StaticConfigAccessError) {
       throw toUnsupportedFlagConfigError(error);
@@ -197,6 +198,58 @@ const assertStaticObjectExpression = (
   }
 
   return node;
+};
+
+const assertStaticSerializableModeObject = (
+  objectExpression: ObjectExpressionNode,
+  path: string[],
+): void => {
+  for (const property of objectExpression.properties) {
+    if (property.type !== "ObjectProperty" || property.computed === true) {
+      throw new StaticConfigAccessError("non-object-expression", path);
+    }
+
+    if (!isStaticPropertyName(property.key)) {
+      throw new StaticConfigAccessError("non-object-expression", path);
+    }
+
+    assertStaticSerializableValue(property.value, path);
+  }
+};
+
+const assertStaticSerializableValue = (node: ASTNode, path: string[]): void => {
+  switch (node.type) {
+    case "StringLiteral":
+    case "NumericLiteral":
+    case "BooleanLiteral":
+    case "NullLiteral":
+      return;
+    case "UnaryExpression":
+      if (
+        (node.operator === "-" || node.operator === "+") &&
+        node.argument.type === "NumericLiteral"
+      ) {
+        return;
+      }
+      break;
+    case "ObjectExpression":
+      assertStaticSerializableModeObject(node, path);
+      return;
+    case "ArrayExpression":
+      for (const element of node.elements) {
+        if (!element || element.type === "SpreadElement") {
+          throw new StaticConfigAccessError("non-object-expression", path);
+        }
+        assertStaticSerializableValue(element as ASTNode, path);
+      }
+      return;
+  }
+
+  throw new StaticConfigAccessError("non-object-expression", path);
+};
+
+const isStaticPropertyName = (keyNode: ObjectPropertyNode["key"]): boolean => {
+  return keyNode.type === "Identifier" || keyNode.type === "StringLiteral";
 };
 
 const toUnsupportedFlagConfigError = (
