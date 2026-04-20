@@ -36,11 +36,14 @@ export const validateToolbarFlagDraft = async (
 const formatZodIssues = (
   issues: z.core.$ZodIssue[],
 ): [message: string, fieldErrors: FlagFieldErrors] => {
-  const fieldErrors = Object.fromEntries(
-    issues
-      .filter((issue) => issue.path.length > 0)
-      .map((issue) => [issue.path.join("."), issue.message]),
-  );
+  const fieldErrors: FlagFieldErrors = {};
+  for (const issue of issues) {
+    if (issue.path.length === 0) continue;
+    const key = issue.path.join(".");
+    fieldErrors[key] = fieldErrors[key]
+      ? `${fieldErrors[key]}\n${issue.message}`
+      : issue.message;
+  }
 
   const message = issues
     .map((issue) => {
