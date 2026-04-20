@@ -53,11 +53,13 @@ export const useFlagForm = (
   });
 
   useEffect(() => {
+    const previousData = previousDataRef.current;
+
     if (
       shouldResetFormState({
         currentValues: values,
         nextData: data,
-        previousData: previousDataRef.current,
+        previousData,
       })
     ) {
       setValues(createInitialFormValues(data));
@@ -66,6 +68,10 @@ export const useFlagForm = (
         formError: undefined,
         isSubmitting: false,
       });
+    } else {
+      setValues((currentValues) =>
+        rebaseFormValues({ currentValues, nextData: data, previousData }),
+      );
     }
 
     previousDataRef.current = data;
@@ -301,6 +307,25 @@ export function shouldResetFormState(params: {
   }
 
   return !formHasUnsavedChanges(nextData, currentValues);
+}
+
+export function rebaseFormValues(params: {
+  currentValues: Record<string, FormValue>;
+  nextData: FlagDataSuccess;
+  previousData: FlagDataSuccess;
+}): Record<string, FormValue> {
+  const { currentValues, nextData, previousData } = params;
+  const previousInitialValues = createInitialFormValues(previousData);
+  const nextInitialValues = createInitialFormValues(nextData);
+
+  return Object.fromEntries(
+    Object.entries(nextInitialValues).map(([key, nextValue]) => [
+      key,
+      currentValues[key] !== previousInitialValues[key]
+        ? (currentValues[key] ?? nextValue)
+        : nextValue,
+    ]),
+  );
 }
 
 export function buildDraftFlags(

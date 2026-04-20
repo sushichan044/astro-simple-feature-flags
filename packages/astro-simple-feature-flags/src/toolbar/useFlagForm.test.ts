@@ -9,6 +9,7 @@ import {
   createInitialFormValues,
   formHasUnsavedChanges,
   getNextSubmitState,
+  rebaseFormValues,
   shouldResetFormState,
   shouldUseLocalSubmitHandling,
 } from "./useFlagForm";
@@ -203,6 +204,35 @@ describe("shouldUseLocalSubmitHandling", () => {
   it("falls back to local submit handling when no lifecycle object is provided", () => {
     expect(shouldUseLocalSubmitHandling(undefined)).toBe(true);
     expect(shouldUseLocalSubmitHandling({})).toBe(false);
+  });
+});
+
+describe("rebaseFormValues", () => {
+  it("keeps user-edited fields and updates pristine fields from new data", () => {
+    const editedValues = {
+      ...createInitialFormValues(baseData),
+      variant: "experiment",
+    };
+    const nextData: FlagDataSuccess = {
+      ...baseData,
+      flags: {
+        ...baseData.flags,
+        fooReleased: false,
+        variant: "control",
+      },
+    };
+
+    expect(
+      rebaseFormValues({
+        currentValues: editedValues,
+        nextData,
+        previousData: baseData,
+      }),
+    ).toEqual({
+      fooReleased: false,
+      rolloutRate: "0.5",
+      variant: "experiment",
+    });
   });
 });
 
