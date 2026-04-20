@@ -7,7 +7,7 @@ import { updateFlagConfigFile, updateFlagConfigSource } from "./update";
 describe("updateFlagConfigSource", () => {
   it("replaces the selected mode object with validated input values", () => {
     const result = updateFlagConfigSource(
-      `s
+      `
 import { defineConfig } from "astro-simple-feature-flags/config";
 
 export default defineConfig({
