@@ -157,11 +157,13 @@ export const simpleFeatureFlags = (
             await sendFlagData();
           } catch (error) {
             if (error instanceof InvalidToolbarPayloadError) {
-              toolbar.send<FlagUpdateResult>(TOOLBAR_FLAG_UPDATE_RESULT_EVENT, {
-                fieldErrors: error.fieldErrors,
-                ok: false,
-                requestId,
-              });
+              const hasFieldErrors = Object.keys(error.fieldErrors).length > 0;
+              toolbar.send<FlagUpdateResult>(
+                TOOLBAR_FLAG_UPDATE_RESULT_EVENT,
+                hasFieldErrors
+                  ? { fieldErrors: error.fieldErrors, ok: false, requestId }
+                  : { formError: error.message, ok: false, requestId },
+              );
               return;
             }
 
