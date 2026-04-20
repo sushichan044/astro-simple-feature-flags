@@ -26,8 +26,13 @@ describe("subscribeToServerEvent", () => {
 
 describe("requestFlagData", () => {
   it("subscribes before requesting data and returns the cleanup function", () => {
-    const on = vi.fn();
-    const send = vi.fn();
+    const calls: string[] = [];
+    const on = vi.fn(() => {
+      calls.push("on");
+    });
+    const send = vi.fn(() => {
+      calls.push("send");
+    });
     const off = vi.fn();
     const listener = vi.fn();
 
@@ -35,6 +40,7 @@ describe("requestFlagData", () => {
 
     expect(on).toHaveBeenCalledWith(TOOLBAR_FLAG_DATA_EVENT, listener);
     expect(send).toHaveBeenCalledWith(TOOLBAR_FLAG_REQUEST_EVENT, undefined);
+    expect(calls).toEqual(["on", "send"]);
 
     cleanup();
 
