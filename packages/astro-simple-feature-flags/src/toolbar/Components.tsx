@@ -1,7 +1,7 @@
 import type { DevToolbarButton } from "astro/runtime/client/dev-toolbar/ui-library/index.js";
 import type { JSX, MouseEventHandler, TargetedEvent } from "preact";
 
-import { useCallback } from "preact/hooks";
+import { useCallback, useRef } from "preact/hooks";
 
 type ToolbarButtonProps = JSX.ToolbarButtonAttributes & {
   onClick?: MouseEventHandler<DevToolbarButton>;
@@ -25,13 +25,13 @@ export const ToolbarButton = ({
   );
 };
 
-type ToolbarBudgeProps = JSX.ToolbarBadgeAttributes;
+type ToolbarBadgeProps = JSX.ToolbarBadgeAttributes;
 
 export const ToolbarBadge = ({
   "badge-style": badgeStyle,
   size,
   ...props
-}: ToolbarBudgeProps): JSX.Element => {
+}: ToolbarBadgeProps): JSX.Element => {
   return (
     <astro-dev-toolbar-badge badge-style={badgeStyle} size={size} {...props} />
   );
@@ -74,10 +74,14 @@ export function ToolbarToggle({
     },
     [onChange],
   );
+  const cleanupRef = useRef<(() => void) | null>(null);
 
   return (
     <astro-dev-toolbar-toggle
       ref={(element) => {
+        cleanupRef.current?.();
+        cleanupRef.current = null;
+
         if (element == null) {
           return;
         }
@@ -92,7 +96,7 @@ export function ToolbarToggle({
 
         // @ts-expect-error type cannot be narrowed
         toggleElement.input.addEventListener("change", handler);
-        return () => {
+        cleanupRef.current = () => {
           // @ts-expect-error type cannot be narrowed
           toggleElement.input.removeEventListener("change", handler);
         };
@@ -121,11 +125,15 @@ export const ToolbarRadioCheckbox = ({
     },
     [onChange],
   );
+  const cleanupRef = useRef<(() => void) | null>(null);
 
   return (
     <astro-dev-toolbar-radio-checkbox
       radio-style={radioStyle}
       ref={(element) => {
+        cleanupRef.current?.();
+        cleanupRef.current = null;
+
         if (element == null) {
           return;
         }
@@ -134,7 +142,7 @@ export const ToolbarRadioCheckbox = ({
 
         // @ts-expect-error type cannot be narrowed
         radioCheckboxElement.input.addEventListener("change", handler);
-        return () => {
+        cleanupRef.current = () => {
           // @ts-expect-error type cannot be narrowed
           radioCheckboxElement.input.removeEventListener("change", handler);
         };
@@ -200,10 +208,14 @@ export const ToolbarSelect = ({
     },
     [onChange],
   );
+  const cleanupRef = useRef<(() => void) | null>(null);
 
   return (
     <astro-dev-toolbar-select
       ref={(element) => {
+        cleanupRef.current?.();
+        cleanupRef.current = null;
+
         if (element == null) {
           return;
         }
@@ -212,7 +224,7 @@ export const ToolbarSelect = ({
 
         // @ts-expect-error type cannot be narrowed
         selectElement.element.addEventListener("change", handler);
-        return () => {
+        cleanupRef.current = () => {
           // @ts-expect-error type cannot be narrowed
           selectElement.element.removeEventListener("change", handler);
         };
