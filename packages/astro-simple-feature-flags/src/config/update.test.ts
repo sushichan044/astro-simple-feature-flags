@@ -257,7 +257,9 @@ async function mkdtempDisposable(prefix: string) {
 
 describe("updateFlagConfigFile", () => {
   it("wraps filesystem errors with the file path context", async () => {
-    await using tempDir = await mkdtempDisposable("astro-simple-feature-flags-");
+    await using tempDir = await mkdtempDisposable(
+      "astro-simple-feature-flags-",
+    );
     const missingFilePath = join(tempDir.path, "missing-flags.ts");
 
     await expect(
