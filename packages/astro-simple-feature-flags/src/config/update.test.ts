@@ -1,4 +1,5 @@
-import { mkdtempDisposable } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -244,11 +245,19 @@ export default defineConfig({
   });
 });
 
+async function mkdtempDisposable(prefix: string) {
+  const path = await mkdtemp(join(tmpdir(), prefix));
+  return {
+    path,
+    [Symbol.asyncDispose]: async () => {
+      await rm(path, { recursive: true, force: true });
+    },
+  };
+}
+
 describe("updateFlagConfigFile", () => {
   it("wraps filesystem errors with the file path context", async () => {
-    await using tempDir = await mkdtempDisposable(
-      "astro-simple-feature-flags-",
-    );
+    await using tempDir = await mkdtempDisposable("astro-simple-feature-flags-");
     const missingFilePath = join(tempDir.path, "missing-flags.ts");
 
     await expect(
