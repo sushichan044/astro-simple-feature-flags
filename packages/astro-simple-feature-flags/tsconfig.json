@@ -4,6 +4,8 @@
     "module": "preserve",
     "moduleResolution": "bundler",
     "types": ["node", "vite/client", "astro/client"],
-    "erasableSyntaxOnly": true
+    "erasableSyntaxOnly": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
   }
 }
