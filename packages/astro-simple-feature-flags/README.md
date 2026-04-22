@@ -195,7 +195,7 @@ See `.astro/integrations/astro-simple-feature-flags/flags.d.ts` for the generate
 
 The integration ships a **Flag Console** in the Astro Dev Toolbar, giving you a live view and interactive editor for all feature flags during development.
 
-![Flag Console screenshot](../../docs/images/devtoolbar-app.png)
+![Flag Console screenshot](docs/images/devtoolbar-app.png)
 
 ### Viewing flags
 
