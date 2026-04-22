@@ -191,16 +191,32 @@ See `.astro/integrations/astro-simple-feature-flags/flags.d.ts` for the generate
 > [!WARNING]
 > You must run `astro sync` after you changed the value of `configFileName` in your integration config.
 
-## 🛠 Dev Toolbar Editing
+## 🛠 Dev Toolbar
 
-The Astro Dev Toolbar app can edit flag values directly in `flags.config.*` during development.
+The integration ships a **Flag Console** in the Astro Dev Toolbar, giving you a live view and interactive editor for all feature flags during development.
+
+![Flag Console screenshot](../../docs/images/devtoolbar-app.png)
+
+### Viewing flags
+
+Open the toolbar and click the flag icon to open the Flag Console. It displays every flag key, its current value, its type, and the active Vite mode (e.g. `development`).
+
+### Editing flags
+
+Primitive flag values (`boolean`, `number`, `string`, `null`) are editable inline and the changes are written directly to `flags.config.*`:
+
+- Boolean flags render as a toggle switch.
+- Number and string flags render as a text input.
+
+Click **Update** to apply, or **Reset** to revert. A successful save triggers HMR so the updated values are applied immediately.
+
+> [!NOTE]
+> Successful toolbar saves write back the validated **input** object, not the schema output. This means `transform()` schemas remain type-safe in `flags.config.*`.
+
+### Limitations
 
 - Editable values are limited to JSON primitives: `string`, `number`, `boolean`, and `null`.
-- Primitive fields are edited as a draft and saved together with the `Update` button.
-- Validation runs against the full mode flag object before the config file is rewritten.
-- Successful toolbar saves write back the validated input object, not the schema output, so `transform()` schemas remain type-safe in `flags.config.*`.
-- The editor only supports static `defineConfig({ flag: ... })` object literals.
-- Flags defined through variables, spreads, computed expressions, arrays, or nested objects remain read-only.
+- Only static `defineConfig({ flag: { … } })` object literals are supported. Flags defined via variables, spread operators, computed expressions, arrays, or nested objects are shown as read-only.
 
 ## 🤝 Contributing & Resources
 
