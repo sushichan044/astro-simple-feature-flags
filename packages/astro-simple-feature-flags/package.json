@@ -68,8 +68,8 @@
     }
   },
   "peerDependencies": {
-    "astro": "^6.0.0",
-    "vite": "^7.0.0"
+    "astro": "^6.0.0 || >=7.0.0-alpha.1 <8",
+    "vite": "^7.0.0 || ^8.0.0"
   },
   "scripts": {
     "lint": "eslint --max-warnings 0 --fix .",
@@ -91,7 +91,7 @@
     "@virtual-live-lab/eslint-config": "catalog:eslint",
     "@virtual-live-lab/tsconfig": "catalog:typescript",
     "amaro": "1.1.1",
-    "astro": "6.1.1",
+    "astro": "catalog:dev",
     "eslint": "catalog:eslint",
     "eslint-plugin-toplevel": "1.2.0",
     "publint": "catalog:build",
@@ -100,7 +100,7 @@
     "typescript-eslint": "catalog:eslint",
     "unplugin-macros": "0.19.1",
     "unplugin-unused": "catalog:build",
-    "vite": "^7.3.1",
+    "vite": "catalog:dev",
     "vitest": "catalog:test"
   }
 }

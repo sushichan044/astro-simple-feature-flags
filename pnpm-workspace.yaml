@@ -23,6 +23,10 @@ catalogs:
   typescript:
     '@virtual-live-lab/tsconfig': 2.1.21
     typescript: 6.0.2
+  dev:
+    "@astrojs/node": 11.0.0-alpha.0
+    astro: 7.0.0-alpha.1
+    vite: 8.0.12
 
 onlyBuiltDependencies:
   - esbuild
