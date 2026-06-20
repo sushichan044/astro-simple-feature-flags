@@ -70,7 +70,7 @@ export const createPreviewServer = async (
     },
   } satisfies AstroInlineConfig;
 
-  await build(config, { devOutput: true, teardownCompiler: false });
+  await build(config, { devOutput: true });
   const previewServer = await preview(config);
 
   return {
