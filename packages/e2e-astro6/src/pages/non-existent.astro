@@ -1,0 +1,20 @@
+---
+import { queryFeatureFlag } from "virtual:astro-simple-feature-flags";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+let mode: unknown;
+try {
+  mode = await queryFeatureFlag(
+    // @ts-expect-error - This is intended.
+    "non-existent-flag",
+  );
+} catch (err) {
+  mode = null;
+  Astro.response.headers.set("x-error", (err as Error).name);
+}
+---
+
+<BaseLayout>
+    <h1>Hello World</h1>
+    <p>Value of non-existent-flag: {String(mode)}</p>
+</BaseLayout>

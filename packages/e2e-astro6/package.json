@@ -1,0 +1,28 @@
+{
+  "name": "@repo/e2e-astro6",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint --max-warnings 0 --fix .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest --run",
+    "build": "astro build"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:biome",
+    "@types/node": "catalog:node",
+    "@virtual-live-lab/eslint-config": "catalog:eslint",
+    "@virtual-live-lab/tsconfig": "catalog:typescript",
+    "eslint": "catalog:eslint",
+    "typescript": "catalog:typescript",
+    "typescript-eslint": "catalog:eslint",
+    "vitest": "catalog:test"
+  },
+  "dependencies": {
+    "@astrojs/node": "catalog:dev-astro6",
+    "astro": "catalog:dev-astro6",
+    "astro-simple-feature-flags": "workspace:*"
+  }
+}
