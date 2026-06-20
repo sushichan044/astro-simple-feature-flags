@@ -1,10 +1,9 @@
 ---
 "astro-simple-feature-flags": minor
-"@repo/e2e-dts": patch
-"@repo/e2e": patch
-"@repo/playgrounds-simple-flag": patch
 ---
 
-build: add support for Astro 7.0 alpha and Vite 8.0
+build: add experimental support for Astro 7.0 beta and Vite 8.0
 
-With the official release of Astro 7.0, we will be releasing v3, which will exclusively support Astro 7.0 and later versions.
+You can now use `astro-simple-feature-flags` with Astro 7.0 beta.
+
+Once Astro 7.0 is released, we will release v3.0.0 of `astro-simple-feature-flags` with official support for Astro 7.0 and Vite 8.0.
