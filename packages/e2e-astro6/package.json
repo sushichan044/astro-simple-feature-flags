@@ -1,6 +1,6 @@
 {
-  "name": "@repo/e2e-dts",
-  "version": "0.0.3",
+  "name": "@repo/e2e-astro6",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -21,7 +21,8 @@
     "vitest": "catalog:test"
   },
   "dependencies": {
-    "astro": "catalog:dev",
+    "@astrojs/node": "catalog:dev-astro6",
+    "astro": "catalog:dev-astro6",
     "astro-simple-feature-flags": "workspace:*"
   }
 }

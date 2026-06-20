@@ -250,7 +250,7 @@ async function mkdtempDisposable(prefix: string) {
   return {
     path,
     [Symbol.asyncDispose]: async () => {
-      await rm(path, { recursive: true, force: true });
+      await rm(path, { force: true, recursive: true });
     },
   };
 }
