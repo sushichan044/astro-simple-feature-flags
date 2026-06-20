@@ -1,5 +1,16 @@
 # astro-simple-feature-flags
 
+## 2.2.0
+### Minor Changes
+
+
+
+- [#43](https://github.com/sushichan044/astro-simple-feature-flags/pull/43) [`4d0b509`](https://github.com/sushichan044/astro-simple-feature-flags/commit/4d0b50993b0a4c5ea22bbb6263f66504d1cafb92) Thanks [@sushichan044](https://github.com/sushichan044)! - build: add experimental support for Astro 7.0 beta and Vite 8.0
+  
+  You can now use `astro-simple-feature-flags` with Astro 7.0 beta.
+  
+  Once Astro 7.0 is released, we will release v3.0.0 of `astro-simple-feature-flags` with official support for Astro 7.0 and Vite 8.0.
+
 ## 2.1.0
 ### Minor Changes
 
